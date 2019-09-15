@@ -49,6 +49,11 @@ func BuildFromConfig(cfg Cfg) (*Net, error) {
 	return wf, nil
 }
 
+// SetListener to net.
+func (n *Net) SetListener(listener Listener) {
+	n.listener = listener
+}
+
 // Start net for the state.
 func (n *Net) Start(state *State, subject interface{}) error {
 	if state.IsStarted() {
