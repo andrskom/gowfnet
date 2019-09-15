@@ -6,6 +6,7 @@ import (
 
 type ErrCode string
 
+// nolint:gosec
 const (
 	ErrCodeStateHasNotTokenInPlace      = "gowfnet.stateHasNotTokenInPlace"
 	ErrCodeStateAlreadyHasTokenInPlace  = "gowfnet.stateAlreadyHasTokenInPlace"
@@ -16,6 +17,8 @@ const (
 	ErrCodeStateIsNotStarted            = "gowfnet.stateIsNotStarted"
 	ErrCodeStateIsFinished              = "gowfnet.stateIsFinished"
 	ErrCodeStateIsErrorState            = "gowfnet.stateIsErrorState"
+	ErrCodeRegistryNetAlreadyRegistered = "gowfnet.registryNetAlreadyRegistered"
+	ErrCodeRegistryNetNotRegistered     = "gowfnet.registryNetNotRegistered"
 )
 
 // Error is err model of component.

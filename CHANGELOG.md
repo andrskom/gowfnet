@@ -8,4 +8,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Implementation of network.
 - Automatic transition listener.
-- PArt of unit test.
+- Part of unit test.
+- Registry of nets.
