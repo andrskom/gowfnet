@@ -69,6 +69,7 @@ func TestCfg_Validate_EmptyFields_Err(t *testing.T) {
 	}
 
 	for descr, data := range dp {
+		// nolint:scopelint
 		t.Run(descr, func(t *testing.T) {
 			require.Equal(
 				t,
@@ -158,7 +159,6 @@ func TestCfg_Validate_StartAndFinishNotInPlaces_Err(t *testing.T) {
 	)
 }
 
-
 func TestCfg_Validate_Correct_NoErr(t *testing.T) {
 	cfg := Cfg{
 		Start:  "blah",
@@ -179,5 +179,5 @@ func TestCfg_Validate_Correct_NoErr(t *testing.T) {
 		},
 	}
 
-	require.NoError(t,cfg.Validate())
+	require.NoError(t, cfg.Validate())
 }
