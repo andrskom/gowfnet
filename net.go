@@ -4,7 +4,7 @@ package gowfnet
 // If you want to ue many listeners, you should create own listener with list of listeners or use it as middlewares.
 // You can see example in AutomaticListenerMiddleware.
 type Listener interface {
-	AfterPlaced(state *State, placeID string, subject interface{})
+	AfterPlaced(net *Net, state *State, placeID string, subject interface{})
 }
 
 // Net is built net.
