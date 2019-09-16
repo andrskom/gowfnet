@@ -97,7 +97,7 @@ func (n *Net) process(state *State, subject interface{}, fromPlaces []string, to
 	}
 
 	for _, place := range toPlaces {
-		n.listener.AfterPlaced(state, place, subject)
+		n.listener.AfterPlaced(n, state, place, subject)
 	}
 	return nil
 }
