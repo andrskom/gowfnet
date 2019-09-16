@@ -35,6 +35,7 @@ func BuildFromConfig(cfg Cfg) (*Net, error) {
 
 	for transitionID, transitionCfg := range cfg.Transitions {
 		transition := newTransition(transitionID, transitionCfg.IsAutomatic)
+		wf.transitions[transitionID] = transition
 
 		for _, placeID := range transitionCfg.From {
 			placeRegistry[placeID].addToTransitions(transition)
