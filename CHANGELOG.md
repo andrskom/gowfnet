@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.3.1] - 2019-09-16
+### Fixed
+- Err in call of listener in net.
+
 ## [0.3.0] - 2019-09-16
 ### Added
 - Net in listener.
