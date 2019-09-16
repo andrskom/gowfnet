@@ -8,7 +8,6 @@ type AutomaticListenerMiddleware struct {
 
 // NewAutomaticListenerMiddleware init middleware.
 func NewAutomaticListenerMiddleware(
-	errorLogger func(msg string),
 	net *Net,
 	listener Listener,
 ) *AutomaticListenerMiddleware {
