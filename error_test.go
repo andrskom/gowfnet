@@ -1,6 +1,7 @@
 package gowfnet
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -84,4 +85,14 @@ func TestBuildError(t *testing.T) {
 	t.Run("error not Error type", func(t *testing.T) {
 		require.Equal(t, NewError(ErrCodeUnknown, "a"), BuildError(errors.New("a")))
 	})
+}
+
+func TestError_Serialization(t *testing.T) {
+	errModel := NewError(ErrCodeStateAlreadyHasTokenInPlace, "some message")
+	bytes, err := json.Marshal(errModel)
+	require.NoError(t, err)
+	require.Equal(t, `{"code":"gowfnet.stateAlreadyHasTokenInPlace","message":"some message"}`, string(bytes))
+	var errNewModel Error
+	require.NoError(t, json.Unmarshal(bytes, &errNewModel))
+	require.Equal(t, errModel, &errNewModel)
 }
