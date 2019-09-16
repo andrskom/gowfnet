@@ -1,6 +1,7 @@
 package gowfnet
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -75,4 +76,30 @@ func BuildError(err error) *Error {
 	}
 
 	return NewError(ErrCodeUnknown, err.Error())
+}
+
+type jsonErr struct {
+	Code    ErrCode `json:"code"`
+	Message string  `json:"message"`
+}
+
+// nolint:govet
+func (e Error) MarshalJSON() ([]byte, error) {
+	jsonSt := jsonErr{
+		Code:    e.code,
+		Message: e.message,
+	}
+
+	return json.Marshal(jsonSt)
+}
+
+func (e *Error) UnmarshalJSON(data []byte) error {
+	var jsonErr jsonErr
+	if err := json.Unmarshal(data, &jsonErr); err != nil {
+		return err
+	}
+	e.code = jsonErr.Code
+	e.message = jsonErr.Message
+
+	return nil
 }
