@@ -22,6 +22,21 @@ func NewState() *State {
 	}
 }
 
+// GetError return error from state.
+func (s *State) GetError() *Error {
+	return s.error
+}
+
+// GetPlaces return list of places.
+func (s *State) GetPlaces() []string {
+	res := make([]string, 0, len(s.places))
+	for place := range s.places {
+		res = append(res, place)
+	}
+
+	return res
+}
+
 // IsError return true if that is error state.
 func (s *State) IsError() bool {
 	return s.error != nil
