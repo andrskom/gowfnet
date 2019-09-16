@@ -10,15 +10,36 @@ func NewRegistry() *Registry {
 	return &Registry{data: make(map[string]*Net)}
 }
 
+// OptsFunc is a type for registry build options.
+type OptsFunc func(o *RegistryBuildOpts)
+
+// RegistryBuildOpts is a struct of options.
+type RegistryBuildOpts struct {
+	GlobalListener Listener
+}
+
+// WithGlobalListener add listener for all nets in registry.
+func WithGlobalListener(listener Listener) OptsFunc {
+	return func(o *RegistryBuildOpts) {
+		o.GlobalListener = listener
+	}
+}
+
 // BuildRegistryFromCfgMap init registry from map of cfg.
-func BuildRegistryFromCfgMap(cfgMap map[string]Cfg) (*Registry, error) {
+func BuildRegistryFromCfgMap(cfgMap map[string]Cfg, optsFuncs ...OptsFunc) (*Registry, error) {
 	registry := NewRegistry()
+
+	opts := &RegistryBuildOpts{}
+	for _, optFunc := range optsFuncs {
+		optFunc(opts)
+	}
 
 	for name, cfg := range cfgMap {
 		net, err := BuildFromConfig(cfg)
 		if err != nil {
 			return nil, err
 		}
+		net.SetListener(opts.GlobalListener)
 		if err := registry.Add(name, net); err != nil {
 			return nil, err
 		}
