@@ -111,6 +111,10 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 		}
 	}
 
+	for _, place := range from {
+		delete(s.places, place)
+	}
+
 	for _, place := range to {
 		if _, ok := s.places[place]; ok {
 			return NewErrorf(
@@ -119,10 +123,6 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 				place, s.places,
 			)
 		}
-	}
-
-	for _, place := range from {
-		delete(s.places, place)
 	}
 
 	for _, place := range to {
