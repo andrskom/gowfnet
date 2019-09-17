@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [0.3.3 ] - 2019-09-16
+## [0.3.4] - 2019-09-17
+### Fixed
+- If listener does not set, AfterPlaced will not be run.
+
+## [0.3.3] - 2019-09-16
 ### Fixed
 - JSON serialization of err.
 
