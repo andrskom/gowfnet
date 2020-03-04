@@ -30,6 +30,7 @@ func BuildRegistryFromCfgMap(cfgMap map[string]Cfg, optsFuncs ...OptsFunc) (*Reg
 	registry := NewRegistry()
 
 	opts := &RegistryBuildOpts{}
+
 	for _, optFunc := range optsFuncs {
 		optFunc(opts)
 	}
@@ -39,7 +40,9 @@ func BuildRegistryFromCfgMap(cfgMap map[string]Cfg, optsFuncs ...OptsFunc) (*Reg
 		if err != nil {
 			return nil, err
 		}
+
 		net.SetListener(opts.GlobalListener)
+
 		if err := registry.Add(name, net); err != nil {
 			return nil, err
 		}
@@ -48,7 +51,7 @@ func BuildRegistryFromCfgMap(cfgMap map[string]Cfg, optsFuncs ...OptsFunc) (*Reg
 	return registry, nil
 }
 
-// Add new net.
+// Addf new net.
 func (r *Registry) Add(name string, net *Net) error {
 	if _, ok := r.data[name]; ok {
 		return NewErrorf(
@@ -57,6 +60,7 @@ func (r *Registry) Add(name string, net *Net) error {
 			name,
 		)
 	}
+
 	r.data[name] = net
 
 	return nil

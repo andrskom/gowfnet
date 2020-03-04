@@ -1,5 +1,5 @@
 GO_IMG ?= golang:1.12.9
-GO_CILINT ?= golangci/golangci-lint:v1.18
+GO_CILINT ?= golangci/golangci-lint:v1.23
 SRV ?= gowfnet
 PROJECT = github.com/andrskom/${SRV}
 PROJECT_DIR ?= $(shell pwd)
