@@ -92,7 +92,9 @@ func TestError_Serialization(t *testing.T) {
 	bytes, err := json.Marshal(errModel)
 	require.NoError(t, err)
 	require.Equal(t, `{"code":"gowfnet.stateAlreadyHasTokenInPlace","message":"some message"}`, string(bytes))
+
 	var errNewModel Error
+
 	require.NoError(t, json.Unmarshal(bytes, &errNewModel))
 	require.Equal(t, errModel, &errNewModel)
 }

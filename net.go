@@ -87,11 +87,12 @@ func (n *Net) process(state *State, subject interface{}, fromPlaces []string, to
 		return err
 	}
 
-	if len(toPlaces) == 1 {
+	if len(toPlaces) == 1 { // nolint:gomnd
 		place, err := n.GetPlace(toPlaces[0])
 		if err != nil {
 			return err
 		}
+
 		if place.isFinished {
 			state.isFinished = true
 		}
@@ -116,6 +117,7 @@ func (n *Net) GetPlace(placeID string) (*Place, error) {
 			placeID,
 		)
 	}
+
 	copyPlace := *place
 
 	return &copyPlace, nil

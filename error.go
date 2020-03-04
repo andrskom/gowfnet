@@ -33,7 +33,7 @@ func NewErrStack() *ErrStack {
 	return &ErrStack{stack: make([]Error, 0)}
 }
 
-// Add err to stack.
+// Addf err to stack.
 // If you send nil *Error, panic will happen.
 func (s *ErrStack) Add(err *Error) {
 	if err == nil {
@@ -117,10 +117,12 @@ func ErrorIs(code ErrCode, err error) bool {
 	if err == nil {
 		return false
 	}
+
 	errModel, ok := err.(*Error)
 	if !ok {
 		return false
 	}
+
 	return errModel.Is(code)
 }
 
@@ -132,6 +134,7 @@ func BuildError(err error) *Error {
 	if err == nil {
 		return nil
 	}
+
 	res, ok := err.(*Error)
 	if ok {
 		return res
@@ -157,9 +160,11 @@ func (e Error) MarshalJSON() ([]byte, error) {
 
 func (e *Error) UnmarshalJSON(data []byte) error {
 	var jsonErr jsonErr
+
 	if err := json.Unmarshal(data, &jsonErr); err != nil {
 		return err
 	}
+
 	e.code = jsonErr.Code
 	e.message = jsonErr.Message
 

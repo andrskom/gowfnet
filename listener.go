@@ -25,6 +25,7 @@ func (l *AutomaticListenerMiddleware) AfterPlaced(net *Net, state *State, placeI
 		state.SetError(err)
 		return
 	}
+
 	for _, transition := range place.GetToTransitions() {
 		if transition.isAutomatic {
 			if err := net.Transit(state, transition.id, subject); err != nil {

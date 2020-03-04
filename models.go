@@ -41,6 +41,7 @@ func (p *Place) GetToTransitions() []Transition {
 	for _, transition := range p.toTransitions {
 		res = append(res, *transition)
 	}
+
 	return res
 }
 

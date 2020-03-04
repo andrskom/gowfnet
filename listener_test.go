@@ -46,6 +46,7 @@ func TestAutomaticListenerMiddleware_AfterPlaced_FullIntegrationTest(t *testing.
 	net, err := BuildFromConfig(cfg)
 	r.NoError(err)
 	net.SetListener(NewAutomaticListenerMiddleware(nil))
+
 	st := NewState()
 	err = net.Start(st, nil)
 	r.NoError(err)

@@ -110,6 +110,7 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 	if s.IsError() {
 		return NewError(ErrCodeStateIsErrorState, "Can't process state to new places, state is errStack")
 	}
+
 	if s.IsFinished() {
 		return NewError(ErrCodeStateIsFinished, "Can't process state to new places, state is finished")
 	}
@@ -154,9 +155,11 @@ type jsonState struct {
 // nolint:govet
 func (s State) MarshalJSON() ([]byte, error) {
 	jsonPlaces := make([]string, 0, len(s.places))
+
 	for place := range s.places {
 		jsonPlaces = append(jsonPlaces, place)
 	}
+
 	jsonSt := jsonState{
 		Places:     jsonPlaces,
 		ErrStack:   s.errStack,
@@ -168,14 +171,19 @@ func (s State) MarshalJSON() ([]byte, error) {
 
 func (s *State) UnmarshalJSON(data []byte) error {
 	var jsonSt jsonState
+
 	if err := json.Unmarshal(data, &jsonSt); err != nil {
 		return err
 	}
+
 	s.places = make(map[string]struct{})
+
 	for _, place := range jsonSt.Places {
 		s.places[place] = struct{}{}
 	}
+
 	s.errStack = jsonSt.ErrStack
 	s.isFinished = jsonSt.IsFinished
+
 	return nil
 }
