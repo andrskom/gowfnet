@@ -22,13 +22,75 @@ const (
 	ErrCodeRegistryNetNotRegistered     = "gowfnet.registryNetNotRegistered"
 )
 
+// ErrStack is a stack of errors for state.
+// We use that instead simple error because sometimes we need to register many errors in resp.
+type ErrStack struct {
+	stack []Error
+}
+
+// NewErrStack init err stack.
+func NewErrStack() *ErrStack {
+	return &ErrStack{stack: make([]Error, 0)}
+}
+
+// Add err to stack.
+// If you send nil *Error, panic will happen.
+func (s *ErrStack) Add(err *Error) {
+	if err == nil {
+		panic("must use not nil err")
+	}
+
+	s.stack = append(s.stack, *err)
+}
+
+// HasErrs in stack.
+func (s *ErrStack) HasErrs() bool {
+	return len(s.stack) > 0
+}
+
+// GetErrs fro stack.
+func (s *ErrStack) GetErrs() []Error {
+	return s.stack
+}
+
+// Error interface implementation.
+func (s *ErrStack) Error() string {
+	res := ""
+
+	for i := 0; i < len(s.stack); i++ {
+		res += fmt.Sprintf("%d) %s;\n", i, s.stack[i].Error())
+	}
+
+	return res
+}
+
+type jsonErrStack struct {
+	Stack []Error `json:"stack"`
+}
+
+func (s *ErrStack) UnmarshalJSON(data []byte) error {
+	var res jsonErrStack
+
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	s.stack = res.Stack
+
+	return nil
+}
+
+func (s ErrStack) MarshalJSON() ([]byte, error) {
+	return json.Marshal(jsonErrStack{Stack: s.stack})
+}
+
 // Error is err model of component.
 type Error struct {
 	code    ErrCode
 	message string
 }
 
-// NewError init error.
+// NewError init errStack.
 func NewError(errorCode ErrCode, msg string) *Error {
 	return &Error{
 		code:    errorCode,
@@ -36,12 +98,12 @@ func NewError(errorCode ErrCode, msg string) *Error {
 	}
 }
 
-// NewErrorf init error by format.
+// NewErrorf init errStack by format.
 func NewErrorf(errorCode ErrCode, format string, args ...interface{}) *Error {
 	return NewError(errorCode, fmt.Sprintf(format, args...))
 }
 
-// ErrorIs check error.
+// ErrorIs check errStack.
 func (e *Error) Is(errorCode ErrCode) bool {
 	return e.code == errorCode
 }
@@ -50,7 +112,7 @@ func (e *Error) Error() string {
 	return e.message
 }
 
-// ErrorIs compare err and error code. If err is not nil, is *Error type and have the same code or false.
+// ErrorIs compare err and errStack code. If err is not nil, is *Error type and have the same code or false.
 func ErrorIs(code ErrCode, err error) bool {
 	if err == nil {
 		return false
@@ -62,7 +124,7 @@ func ErrorIs(code ErrCode, err error) bool {
 	return errModel.Is(code)
 }
 
-// BuildError from error interface.
+// BuildError from errStack interface.
 // If arg contains nil, return nil.
 // If arg contains Error type, return that.
 // If arg contains another type, build Error with unknown code.
