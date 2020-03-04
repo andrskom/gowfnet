@@ -12,7 +12,7 @@ func TestNewState(t *testing.T) {
 		t,
 		&State{
 			places:     make(map[string]struct{}),
-			error:      nil,
+			errStack:   NewErrStack(),
 			isFinished: false,
 			mu:         sync.Mutex{},
 		},
@@ -25,7 +25,7 @@ func TestState_SetError(t *testing.T) {
 		t,
 		&State{
 			places:     make(map[string]struct{}),
-			error:      nil,
+			errStack:   NewErrStack(),
 			isFinished: false,
 			mu:         sync.Mutex{},
 		},

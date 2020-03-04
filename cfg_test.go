@@ -19,14 +19,14 @@ func TestNewCfgValidateError(t *testing.T) {
 func TestCfgValidateError_Has(t *testing.T) {
 	err := NewCfgValidateError()
 	require.False(t, err.Has())
-	err.Add("blah")
+	err.Addf("blah")
 	require.True(t, err.Has())
 }
 
 func TestCfgValidateError_Add(t *testing.T) {
 	err := NewCfgValidateError()
-	err.Add("a")
-	err.Add("b %s", "c")
+	err.Addf("a")
+	err.Addf("b %s", "c")
 	require.Equal(
 		t,
 		&CfgValidateError{
@@ -41,8 +41,8 @@ func TestCfgValidateError_Add(t *testing.T) {
 
 func TestCfgValidateError_Error(t *testing.T) {
 	err := NewCfgValidateError()
-	err.Add("a")
-	err.Add("b %s", "c")
+	err.Addf("a")
+	err.Addf("b %s", "c")
 	require.Equal(
 		t,
 		` - a

@@ -8,7 +8,7 @@ import (
 // State of net.
 type State struct {
 	places     map[string]struct{}
-	error      *Error
+	errStack   *ErrStack
 	isFinished bool
 	mu         sync.Mutex
 }
@@ -17,14 +17,14 @@ type State struct {
 func NewState() *State {
 	return &State{
 		places:     make(map[string]struct{}),
-		error:      nil,
+		errStack:   NewErrStack(), // We can init inside value object without DI.
 		isFinished: false,
 	}
 }
 
-// GetError return error from state.
-func (s *State) GetError() *Error {
-	return s.error
+// GetError return errStack from state.
+func (s *State) GetErrorStack() *ErrStack {
+	return s.errStack
 }
 
 // GetPlaces return list of places.
@@ -37,16 +37,16 @@ func (s *State) GetPlaces() []string {
 	return res
 }
 
-// IsError return true if that is error state.
+// IsError return true if that is errStack state.
 func (s *State) IsError() bool {
-	return s.error != nil
+	return s.errStack.HasErrs()
 }
 
 // SetError state.
-// If try to set nil error, panic will happen.
-// If try to set error state while state is finished, panic will happen.
-// If try to set error state while state is not started, panic will happen.
-// If is already error state, not set new error state.
+// If try to set nil errStack, panic will happen.
+// If try to set errStack state while state is finished, panic will happen.
+// If try to set errStack state while state is not started, panic will happen.
+// If is already errStack state, not set new errStack state.
 func (s *State) SetError(err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -64,8 +64,21 @@ func (s *State) SetError(err error) {
 	}
 
 	if !s.IsError() {
-		s.error = BuildError(err)
+		s.errStack.Add(BuildError(err))
 	}
+}
+
+// SetError state.
+// If try to set nil errStack, panic will happen.
+func (s *State) AddError(err error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if err == nil {
+		panic("arguments of function can't be nil")
+	}
+
+	s.errStack.Add(BuildError(err))
 }
 
 // IsFinished the net.
@@ -95,8 +108,9 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 	defer s.mu.Unlock()
 
 	if s.IsError() {
-		return NewError(ErrCodeStateIsErrorState, "Can't process state to new places, state is error")
+		return NewError(ErrCodeStateIsErrorState, "Can't process state to new places, state is errStack")
 	}
+
 	if s.IsFinished() {
 		return NewError(ErrCodeStateIsFinished, "Can't process state to new places, state is finished")
 	}
@@ -133,20 +147,22 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 }
 
 type jsonState struct {
-	Places     []string `json:"places"`
-	Error      *Error   `json:"error"`
-	IsFinished bool     `json:"isFinished"`
+	Places     []string  `json:"places"`
+	ErrStack   *ErrStack `json:"errStack"`
+	IsFinished bool      `json:"isFinished"`
 }
 
 // nolint:govet
 func (s State) MarshalJSON() ([]byte, error) {
 	jsonPlaces := make([]string, 0, len(s.places))
+
 	for place := range s.places {
 		jsonPlaces = append(jsonPlaces, place)
 	}
+
 	jsonSt := jsonState{
 		Places:     jsonPlaces,
-		Error:      s.error,
+		ErrStack:   s.errStack,
 		IsFinished: s.isFinished,
 	}
 
@@ -155,14 +171,19 @@ func (s State) MarshalJSON() ([]byte, error) {
 
 func (s *State) UnmarshalJSON(data []byte) error {
 	var jsonSt jsonState
+
 	if err := json.Unmarshal(data, &jsonSt); err != nil {
 		return err
 	}
+
 	s.places = make(map[string]struct{})
+
 	for _, place := range jsonSt.Places {
 		s.places[place] = struct{}{}
 	}
-	s.error = jsonSt.Error
+
+	s.errStack = jsonSt.ErrStack
 	s.isFinished = jsonSt.IsFinished
+
 	return nil
 }

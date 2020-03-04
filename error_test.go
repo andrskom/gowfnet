@@ -43,10 +43,10 @@ func TestNewErrorf(t *testing.T) {
 }
 
 func TestError_Is(t *testing.T) {
-	t.Run("not is error", func(t *testing.T) {
+	t.Run("not is errStack", func(t *testing.T) {
 		require.False(t, NewErrorf(ErrCodeUnknown, "a").Is(ErrCodeNetDoesntKnowAboutPlace))
 	})
-	t.Run("is error", func(t *testing.T) {
+	t.Run("is errStack", func(t *testing.T) {
 		require.True(t, NewErrorf(ErrCodeUnknown, "a").Is(ErrCodeUnknown))
 	})
 }
@@ -82,7 +82,7 @@ func TestBuildError(t *testing.T) {
 		err := NewError(ErrCodeNetDoesntKnowAboutPlace, "a")
 		require.Equal(t, err, BuildError(err))
 	})
-	t.Run("error not Error type", func(t *testing.T) {
+	t.Run("errStack not Error type", func(t *testing.T) {
 		require.Equal(t, NewError(ErrCodeUnknown, "a"), BuildError(errors.New("a")))
 	})
 }
@@ -92,7 +92,9 @@ func TestError_Serialization(t *testing.T) {
 	bytes, err := json.Marshal(errModel)
 	require.NoError(t, err)
 	require.Equal(t, `{"code":"gowfnet.stateAlreadyHasTokenInPlace","message":"some message"}`, string(bytes))
+
 	var errNewModel Error
+
 	require.NoError(t, json.Unmarshal(bytes, &errNewModel))
 	require.Equal(t, errModel, &errNewModel)
 }
