@@ -87,7 +87,7 @@ func (n *Net) process(state *State, subject interface{}, fromPlaces []string, to
 		return err
 	}
 
-	if len(toPlaces) == 1 { // nolint:gomnd
+	if len(toPlaces) == 1 {
 		place, err := n.GetPlace(toPlaces[0])
 		if err != nil {
 			return err

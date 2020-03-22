@@ -7,10 +7,9 @@ import (
 
 type ErrCode string
 
-// nolint:gosec
 const (
-	ErrCodeStateHasNotTokenInPlace      = "gowfnet.stateHasNotTokenInPlace"
-	ErrCodeStateAlreadyHasTokenInPlace  = "gowfnet.stateAlreadyHasTokenInPlace"
+	ErrCodeStateHasNotTokenInPlace      = "gowfnet.stateHasNotTokenInPlace"     // nolint:gosec
+	ErrCodeStateAlreadyHasTokenInPlace  = "gowfnet.stateAlreadyHasTokenInPlace" // nolint:gosec
 	ErrCodeNetDoesntKnowAboutTransition = "gowfnet.netDoesntKnowAboutTransition"
 	ErrCodeNetDoesntKnowAboutPlace      = "gowfnet.netDoesntKnowAboutPlace"
 	ErrCodeUnknown                      = "gowfnet.unknown"
@@ -33,7 +32,7 @@ func NewErrStack() *ErrStack {
 	return &ErrStack{stack: make([]Error, 0)}
 }
 
-// Addf err to stack.
+// Add err to stack.
 // If you send nil *Error, panic will happen.
 func (s *ErrStack) Add(err *Error) {
 	if err == nil {
@@ -148,7 +147,6 @@ type jsonErr struct {
 	Message string  `json:"message"`
 }
 
-// nolint:govet
 func (e Error) MarshalJSON() ([]byte, error) {
 	jsonSt := jsonErr{
 		Code:    e.code,

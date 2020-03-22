@@ -152,8 +152,7 @@ type jsonState struct {
 	IsFinished bool      `json:"isFinished"`
 }
 
-// nolint:govet
-func (s State) MarshalJSON() ([]byte, error) {
+func (s *State) MarshalJSON() ([]byte, error) {
 	jsonPlaces := make([]string, 0, len(s.places))
 
 	for place := range s.places {
