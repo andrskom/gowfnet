@@ -3,6 +3,7 @@ package gowfnet
 import (
 	"encoding/json"
 	"fmt"
+	"testing"
 )
 
 type ErrCode string
@@ -167,4 +168,26 @@ func (e *Error) UnmarshalJSON(data []byte) error {
 	e.message = jsonErr.Message
 
 	return nil
+}
+
+func AssertErrCodeEqual(t *testing.T, code ErrCode, err error) {
+	if ErrorIs(code, err) {
+		return
+	}
+
+	t.Errorf(`ecode of err is not equal
+expected: %s
+actualErr: %#v`, code, err)
+	t.Fail()
+}
+
+func RequireErrCodeEqual(t *testing.T, code ErrCode, err error) {
+	if ErrorIs(code, err) {
+		return
+	}
+
+	t.Errorf(`ecode of err is not equal
+expected: %s
+actualErr: %#v`, code, err)
+	t.FailNow()
 }
