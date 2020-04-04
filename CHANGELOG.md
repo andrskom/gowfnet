@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ##[Unreleased]
 ### Changed
+- Validator component amd error.
 - Config pkg with a minimal config based on an interface.
 - Linter version to 1.24
 - GO version to 1.14

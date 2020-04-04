@@ -11,16 +11,16 @@ const (
 // Registry is a registry for config.
 // Very often you provide more than one configured net for users.
 type Registry struct {
-	data map[string]ConfigInterface
+	data map[string]Interface
 }
 
 // NewRegistry init empty registry.
 func NewRegistry() *Registry {
-	return &Registry{data: make(map[string]ConfigInterface)}
+	return &Registry{data: make(map[string]Interface)}
 }
 
 // AddWithName returns err if one of params will be unexpected.
-func (r Registry) AddWithName(name string, cfg ConfigInterface) error {
+func (r Registry) AddWithName(name string, cfg Interface) error {
 	if cfg == nil {
 		return gowfnet.NewError(ErrCodeNilCfg, "can't set nil config to registry")
 	}
@@ -35,7 +35,7 @@ func (r Registry) AddWithName(name string, cfg ConfigInterface) error {
 }
 
 // GetByName return Config or err if config was not registered.
-func (r Registry) GetByName(name string) (ConfigInterface, error) {
+func (r Registry) GetByName(name string) (Interface, error) {
 	out, ok := r.data[name]
 	if !ok {
 		return nil, gowfnet.NewError(ErrCodeCfgNotRegistered, "config with this name was not registered")

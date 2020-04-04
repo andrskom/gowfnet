@@ -10,14 +10,14 @@ import (
 )
 
 func TestNewRegistry(t *testing.T) {
-	assert.Equal(t, &Registry{data: make(map[string]ConfigInterface)}, NewRegistry())
+	assert.Equal(t, &Registry{data: make(map[string]Interface)}, NewRegistry())
 }
 
 func TestRegistry_AddWithName_NilConfig_ExpectedErrAndExpectedState(t *testing.T) {
 	reg := NewRegistry()
 	err := reg.AddWithName("a", nil)
 	assert.True(t, gowfnet.ErrorIs(ErrCodeNilCfg, err), "expected err with code "+ErrCodeNilCfg)
-	assert.Equal(t, &Registry{data: make(map[string]ConfigInterface)}, reg)
+	assert.Equal(t, &Registry{data: make(map[string]Interface)}, reg)
 }
 
 func TestRegistry_AddWithName_DoubleUseName_ExpectedErrAndExpectedState(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRegistry_AddWithName_DoubleUseName_ExpectedErrAndExpectedState(t *testi
 		gowfnet.ErrorIs(ErrCodeCfgAlreadyRegistered, err),
 		"expected err with code "+ErrCodeCfgAlreadyRegistered,
 	)
-	assert.Equal(t, &Registry{data: map[string]ConfigInterface{"a": &Minimal{Start: "b"}}}, reg)
+	assert.Equal(t, &Registry{data: map[string]Interface{"a": &Minimal{Start: "b"}}}, reg)
 }
 
 func TestRegistry_AddWithName_CoupleCorrect_NoErrAndExpectedState(t *testing.T) {
@@ -44,7 +44,7 @@ func TestRegistry_AddWithName_CoupleCorrect_NoErrAndExpectedState(t *testing.T) 
 	assert.Equal(
 		t,
 		&Registry{
-			data: map[string]ConfigInterface{
+			data: map[string]Interface{
 				"a": &Minimal{Start: "b"},
 				"c": &Minimal{Start: "d"},
 			},

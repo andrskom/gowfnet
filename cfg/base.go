@@ -14,7 +14,7 @@ type TransitionRegistryInterface interface {
 	GetByID(transitionID IDGetter) (TransitionInterface, error)
 }
 
-type ConfigInterface interface {
+type Interface interface {
 	GetStart() IDGetter
 	GetFinish() IDGetter
 	GetPlaces() []IDGetter
