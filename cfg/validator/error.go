@@ -18,8 +18,10 @@ func NewError() *Error {
 }
 
 // Addf message to err list.
-func (e *Error) Addf(format string, args ...interface{}) {
+func (e *Error) Addf(format string, args ...interface{}) *Error {
 	e.list = append(e.list, fmt.Sprintf(format, args...))
+
+	return e
 }
 
 // Has errors.
