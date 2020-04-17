@@ -66,21 +66,26 @@ func (m MinimalTransition) GetTo() []IDGetter {
 
 // MinimalTransitionRegistry is a simple implementation of TransitionRegistryInterface.
 // This contains only required fields.
-type MinimalTransitionRegistry struct {
-	data map[string]MinimalTransition
-}
+type MinimalTransitionRegistry map[string]MinimalTransition
 
 func (m *MinimalTransitionRegistry) UnmarshalJSON(bytes []byte) error {
-	return json.Unmarshal(bytes, &m.data)
+	var data map[string]MinimalTransition
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*m = data
+
+	return nil
 }
 
 func (m MinimalTransitionRegistry) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.data)
+	return json.Marshal(map[string]MinimalTransition(m))
 }
 
 func (m MinimalTransitionRegistry) GetAsMap() map[string]TransitionInterface {
 	out := make(map[string]TransitionInterface)
-	for k, v := range m.data {
+	for k, v := range m {
 		out[k] = v
 	}
 
@@ -88,11 +93,11 @@ func (m MinimalTransitionRegistry) GetAsMap() map[string]TransitionInterface {
 }
 
 func (m MinimalTransitionRegistry) GetByID(transitionID IDGetter) (TransitionInterface, error) {
-	if _, ok := m.data[transitionID.GetID()]; !ok {
+	if _, ok := m[transitionID.GetID()]; !ok {
 		return nil, gowfnet.NewError(ErrCodeUnknownTransitionID, "can't find transition for id in registry")
 	}
 
-	return m.data[transitionID.GetID()], nil
+	return m[transitionID.GetID()], nil
 }
 
 func convertSliceFromStringToInterface(in []StringID) []IDGetter {
