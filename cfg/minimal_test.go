@@ -45,11 +45,9 @@ func TestMinimal_GetPlaces(t *testing.T) {
 func TestMinimal_GetTransitions(t *testing.T) {
 	cfg := Minimal{
 		Transitions: MinimalTransitionRegistry{
-			data: map[string]MinimalTransition{
-				"a": {
-					To:   []StringID{"b"},
-					From: nil,
-				},
+			"a": {
+				To:   []StringID{"b"},
+				From: nil,
 			},
 		},
 	}
@@ -65,9 +63,7 @@ func TestMinimal_GetTransitions(t *testing.T) {
 }
 
 func TestMinimalTransitionRegistry_GetByID_TransitionNotSet_ExpectedErr(t *testing.T) {
-	reg := MinimalTransitionRegistry{
-		data: map[string]MinimalTransition{},
-	}
+	reg := MinimalTransitionRegistry{}
 
 	res, err := reg.GetByID(StringID("a"))
 
@@ -77,11 +73,9 @@ func TestMinimalTransitionRegistry_GetByID_TransitionNotSet_ExpectedErr(t *testi
 
 func TestMinimalTransitionRegistry_GetByID_TransitionSet_ExpectedVal(t *testing.T) {
 	reg := MinimalTransitionRegistry{
-		data: map[string]MinimalTransition{
-			"a": {
-				To:   []StringID{"b"},
-				From: nil,
-			},
+		"a": {
+			To:   []StringID{"b"},
+			From: nil,
 		},
 	}
 
@@ -123,11 +117,9 @@ func TestMinimalTransition_GetTo(t *testing.T) {
 
 func TestMinimalTransitionRegistry_Marshalling(t *testing.T) {
 	reg := MinimalTransitionRegistry{
-		data: map[string]MinimalTransition{
-			"a": {
-				To:   []StringID{"b"},
-				From: nil,
-			},
+		"a": {
+			To:   []StringID{"b"},
+			From: nil,
 		},
 	}
 
