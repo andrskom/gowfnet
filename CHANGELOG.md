@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ##[Unreleased]
-### Changed
-- Validator component amd error.
+### Added
 - Config pkg with a minimal config based on an interface.
+- Validator component amd error.
+- Validators for a base flow.
+### Changed
 - Linter version to 1.24
 - GO version to 1.14
 
