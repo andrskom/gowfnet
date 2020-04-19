@@ -130,6 +130,31 @@ func TestDeadPlaces_Validate_ValidCfg_NoErr(t *testing.T) {
 				},
 			},
 		},
+		"net with cycle": {
+			cfg: cfg.Minimal{
+				Start:  "a",
+				Finish: "z",
+				Places: []cfg.StringID{"a", "b", "z", "c"},
+				Transitions: map[string]cfg.MinimalTransition{
+					"t1": {
+						From: []cfg.StringID{"a"},
+						To:   []cfg.StringID{"b"},
+					},
+					"t2": {
+						From: []cfg.StringID{"b"},
+						To:   []cfg.StringID{"c"},
+					},
+					"t3": {
+						From: []cfg.StringID{"c"},
+						To:   []cfg.StringID{"b"},
+					},
+					"t4": {
+						From: []cfg.StringID{"b"},
+						To:   []cfg.StringID{"z"},
+					},
+				},
+			},
+		},
 	}
 
 	v := NewDeadPlaces(NewCfgTreeBuilder())
