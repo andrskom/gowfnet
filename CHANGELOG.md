@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Config pkg with a minimal config based on an interface.
 - Validator component amd error.
 - Validators for a base flow.
+- Dead places validator.
 ### Changed
 - Linter version to 1.24
 - GO version to 1.14
