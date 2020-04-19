@@ -259,3 +259,71 @@ func TestBuildTree_IncorrectCfg_ExpectedErr(t *testing.T) {
 		})
 	}
 }
+
+func TestNewNodeStack(t *testing.T) {
+	assert.Equal(t, &NodeStack{stack: make([]*TreeNode, 0)}, NewNodeStack())
+}
+
+func TestNodeStack_Push(t *testing.T) {
+	stack := NewNodeStack()
+
+	{
+		node := NewTreeNode("1")
+		stack.Push(node)
+		assert.Equal(t, 1, stack.Len())
+		topNode, err := stack.Peek()
+		require.NoError(t, err)
+		assert.Same(t, node, topNode)
+	}
+
+	{
+		node := NewTreeNode("2")
+		stack.Push(node)
+		assert.Equal(t, 2, stack.Len())
+		topNode, err := stack.Peek()
+		require.NoError(t, err)
+		assert.Same(t, node, topNode)
+	}
+}
+
+func TestNodeStack_Pop_NotEmpty_ExpectedNode(t *testing.T) {
+	stack := NewNodeStack()
+
+	node := NewTreeNode("1")
+	stack.Push(node)
+
+	aNode, err := stack.Pop()
+	require.NoError(t, err)
+	assert.Equal(t, 0, stack.Len())
+	assert.Same(t, node, aNode)
+}
+
+func TestNodeStack_Pop_Empty_ExpectedError(t *testing.T) {
+	stack := NewNodeStack()
+
+	aNode, err := stack.Pop()
+	assert.Nil(t, aNode)
+	assert.Equal(t, ErrStackIsEmpty, err)
+	assert.Equal(t, 0, stack.Len())
+}
+
+func TestNodeStack_Peek_NotEmpty_ExpectedNode(t *testing.T) {
+	stack := NewNodeStack()
+
+	node := NewTreeNode("1")
+	stack.Push(node)
+
+	aNode, err := stack.Peek()
+	require.NoError(t, err)
+	assert.Equal(t, 1, stack.Len())
+	assert.Same(t, node, aNode)
+}
+
+func TestNodeStack_Peek_Empty_ExpectedError(t *testing.T) {
+	stack := NewNodeStack()
+
+	aNode, err := stack.Peek()
+	assert.Nil(t, aNode)
+	assert.Equal(t, ErrStackIsEmpty, err)
+	assert.Equal(t, 0, stack.Len())
+}

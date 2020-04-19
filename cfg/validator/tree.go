@@ -9,6 +9,7 @@ import (
 var (
 	ErrNodeIsNotFound        = errors.New("node is not found by id")
 	ErrUnexpectedColorOfNode = errors.New("unexpected color of node")
+	ErrStackIsEmpty          = errors.New("stack is empty")
 )
 
 type Tree struct {
@@ -140,4 +141,40 @@ func BuildTree(c cfg.Interface) (*Tree, error) {
 	}
 
 	return tree, nil
+}
+
+type NodeStack struct {
+	stack []*TreeNode
+}
+
+func NewNodeStack() *NodeStack {
+	return &NodeStack{stack: make([]*TreeNode, 0)}
+}
+
+func (s *NodeStack) Len() int {
+	return len(s.stack)
+}
+
+func (s *NodeStack) Push(node *TreeNode) {
+	s.stack = append(s.stack, node)
+}
+
+func (s *NodeStack) Peek() (*TreeNode, error) {
+	if s.Len() == 0 {
+		return nil, ErrStackIsEmpty
+	}
+
+	return s.stack[s.Len()-1], nil
+}
+
+func (s *NodeStack) Pop() (*TreeNode, error) {
+	if s.Len() == 0 {
+		return nil, ErrStackIsEmpty
+	}
+
+	res := s.stack[s.Len()-1]
+
+	s.stack = s.stack[:s.Len()-1]
+
+	return res, nil
 }
