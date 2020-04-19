@@ -47,6 +47,10 @@ func (t *Tree) GetNode(nodeID string) (*TreeNode, error) {
 	return res, nil
 }
 
+func (t *Tree) GetNodeRegistry() map[string]*TreeNode {
+	return t.registry
+}
+
 type color int
 
 const (
@@ -113,8 +117,19 @@ func (n *TreeNode) GetFrom() map[string]*TreeNode {
 	return n.from
 }
 
+type TreeBuilder interface {
+	Build(c cfg.Interface) (*Tree, error)
+}
+
 // BuildTree from config of net and return tree.
-func BuildTree(c cfg.Interface) (*Tree, error) {
+type CfgTreeBuilder struct {
+}
+
+func NewCfgTreeBuilder() *CfgTreeBuilder {
+	return &CfgTreeBuilder{}
+}
+
+func (b *CfgTreeBuilder) Build(c cfg.Interface) (*Tree, error) {
 	tree := NewTree(c.GetStart().GetID(), c.GetFinish().GetID())
 
 	for _, place := range c.GetPlaces() {

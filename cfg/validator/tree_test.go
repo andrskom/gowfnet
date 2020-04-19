@@ -193,7 +193,11 @@ func TestTreeNode_AddFrom_Repeatable(t *testing.T) {
 	)
 }
 
-func TestBuildTree_CorrectCfg_ExpectedTree(t *testing.T) {
+func TestNewCfgTreeBuilder(t *testing.T) {
+	assert.Equal(t, &CfgTreeBuilder{}, NewCfgTreeBuilder())
+}
+
+func TestCfgTreeBuilder_Build_CorrectCfg_ExpectedTree(t *testing.T) {
 	minCfg := &cfg.Minimal{
 		Start:  "a",
 		Finish: "b",
@@ -206,7 +210,7 @@ func TestBuildTree_CorrectCfg_ExpectedTree(t *testing.T) {
 		},
 	}
 
-	tree, err := BuildTree(minCfg)
+	tree, err := NewCfgTreeBuilder().Build(minCfg)
 	require.NoError(t, err)
 	require.NotNil(t, tree)
 
@@ -225,7 +229,7 @@ func TestBuildTree_CorrectCfg_ExpectedTree(t *testing.T) {
 	assert.Equal(t, map[string]*TreeNode{"a": startNode}, finishNode.GetFrom())
 }
 
-func TestBuildTree_IncorrectCfg_ExpectedErr(t *testing.T) {
+func TestCfgTreeBuilder_Build_IncorrectCfg_ExpectedErr(t *testing.T) {
 	dp := map[string]cfg.Minimal{
 		"unexpected in from": {
 			Start:  "a",
@@ -251,9 +255,11 @@ func TestBuildTree_IncorrectCfg_ExpectedErr(t *testing.T) {
 		},
 	}
 
+	builder := NewCfgTreeBuilder()
+
 	for descr, data := range dp {
 		t.Run(descr, func(t *testing.T) {
-			tree, err := BuildTree(&data)
+			tree, err := builder.Build(&data)
 			require.Nil(t, tree)
 			require.Equal(t, ErrNodeIsNotFound, err)
 		})
