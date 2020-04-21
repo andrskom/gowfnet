@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Validator component amd error.
 - Validators for a base flow.
 - Dead places validator.
+- Non-finish places.
 ### Changed
 - Linter version to 1.24
 - GO version to 1.14
