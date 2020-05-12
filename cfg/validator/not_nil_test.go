@@ -21,5 +21,5 @@ func TestNotNil_Validate_ValidCfg_NoErr(t *testing.T) {
 func TestNotNil_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 	v := NewNotNil()
 
-	assert.Equal(t, NewError().Addf("config of net can't be nil"), v.Validate(nil))
+	assert.Equal(t, BuildErrorf("config of net can't be nil"), v.Validate(nil))
 }

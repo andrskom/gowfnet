@@ -23,7 +23,7 @@ func TestDuplicatedPlacesInPlaces_Validate_RepeatVal_ExpectedErr(t *testing.T) {
 
 	v := NewDuplicatedPlacesInPlaces()
 
-	assert.Equal(t, NewError().Addf("place with id 'a' is duplicated"), v.Validate(minCfg))
+	assert.Equal(t, BuildErrorf("place with id 'a' is duplicated"), v.Validate(minCfg))
 }
 
 func TestDuplicatedPlacesInPlaces_Validate_CorrectCfg_NoErr(t *testing.T) {

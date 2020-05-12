@@ -1,3 +1,4 @@
+// nolint:funlen
 package validator
 
 import (
@@ -18,8 +19,10 @@ func TestNonFinishPlaces_Validate_BuilderErr_TheSameErr(t *testing.T) {
 
 	v := NewNonFinishPlaces(builderMock)
 
-	var minCfg *cfg.Minimal
-	var mockRes *Tree
+	var (
+		minCfg  *cfg.Minimal
+		mockRes *Tree
+	)
 
 	eErr := errors.New("expectedErr")
 	builderMock.On("Build", minCfg).Return(mockRes, eErr)
@@ -63,7 +66,7 @@ func TestNonFinishPlaces_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 					},
 				},
 			},
-			expected: NewError().Addf("place with id 'a' is non-finish place"),
+			expected: BuildErrorf("place with id 'a' is non-finish place"),
 		},
 		"net with branch error": {
 			cfg: cfg.Minimal{
@@ -81,7 +84,7 @@ func TestNonFinishPlaces_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 					},
 				},
 			},
-			expected: NewError().Addf("place with id 'c' is non-finish place"),
+			expected: BuildErrorf("place with id 'c' is non-finish place"),
 		},
 	}
 
@@ -89,7 +92,7 @@ func TestNonFinishPlaces_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 
 	for desc, d := range dp {
 		t.Run(desc, func(t *testing.T) {
-			assert.Equal(t, d.expected, v.Validate(d.cfg))
+			assert.Equal(t, d.expected, v.Validate(d.cfg)) // nolint:scopelint
 		})
 	}
 }
@@ -161,7 +164,7 @@ func TestNonFinishPlaces_Validate_ValidCfg_NoErr(t *testing.T) {
 
 	for desc, d := range dp {
 		t.Run(desc, func(t *testing.T) {
-			assert.NoError(t, v.Validate(d.cfg))
+			assert.NoError(t, v.Validate(d.cfg)) // nolint:scopelint
 		})
 	}
 }

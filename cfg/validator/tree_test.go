@@ -259,7 +259,7 @@ func TestCfgTreeBuilder_Build_IncorrectCfg_ExpectedErr(t *testing.T) {
 
 	for descr, data := range dp {
 		t.Run(descr, func(t *testing.T) {
-			tree, err := builder.Build(&data)
+			tree, err := builder.Build(&data) // nolint:scopelint
 			require.Nil(t, tree)
 			require.Equal(t, ErrNodeIsNotFound, err)
 		})

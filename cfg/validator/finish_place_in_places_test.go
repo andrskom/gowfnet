@@ -35,5 +35,5 @@ func TestFinishPlaceInPlaces_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 
 	v := NewFinishPlaceInPlaces()
 
-	assert.Equal(t, NewError().Addf("finish place is not found in places"), v.Validate(minCfg))
+	assert.Equal(t, BuildErrorf("finish place is not found in places"), v.Validate(minCfg))
 }

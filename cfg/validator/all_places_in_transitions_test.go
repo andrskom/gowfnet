@@ -39,5 +39,7 @@ func TestAllPlacesInTransitions_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 
 	v := NewAllPlacesInTransitions()
 
-	assert.Equal(t, NewError().Addf("transitions don't use place with id 'a'"), v.Validate(minCfg))
+	err := NewError()
+	err.Addf("transitions don't use place with id 'a'")
+	assert.Equal(t, err, v.Validate(minCfg))
 }

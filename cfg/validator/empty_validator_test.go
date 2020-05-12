@@ -19,7 +19,7 @@ func TestEmpty_Validate_ValidCfg_NoErr(t *testing.T) {
 		Start:       "a",
 		Finish:      "b",
 		Places:      []cfg.StringID{"c"},
-		Transitions: cfg.MinimalTransitionRegistry{"d": {},},
+		Transitions: cfg.MinimalTransitionRegistry{"d": {}},
 	}
 
 	assert.NoError(t, v.Validate(minCfg))
@@ -37,27 +37,27 @@ func TestEmpty_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 				Start:       "",
 				Finish:      "b",
 				Places:      []cfg.StringID{"c"},
-				Transitions: cfg.MinimalTransitionRegistry{"d": {},},
+				Transitions: cfg.MinimalTransitionRegistry{"d": {}},
 			},
-			expectedErr: NewError().Addf("start place id is empty"),
+			expectedErr: BuildErrorf("start place id is empty"),
 		},
 		"empty finish": {
 			cfg: cfg.Minimal{
 				Start:       "a",
 				Finish:      "",
 				Places:      []cfg.StringID{"c"},
-				Transitions: cfg.MinimalTransitionRegistry{"d": {},},
+				Transitions: cfg.MinimalTransitionRegistry{"d": {}},
 			},
-			expectedErr: NewError().Addf("finish place id is empty"),
+			expectedErr: BuildErrorf("finish place id is empty"),
 		},
 		"empty places": {
 			cfg: cfg.Minimal{
 				Start:       "a",
 				Finish:      "b",
 				Places:      nil,
-				Transitions: cfg.MinimalTransitionRegistry{"d": {},},
+				Transitions: cfg.MinimalTransitionRegistry{"d": {}},
 			},
-			expectedErr: NewError().Addf("places is empty"),
+			expectedErr: BuildErrorf("places is empty"),
 		},
 		"empty transitions": {
 			cfg: cfg.Minimal{
@@ -66,7 +66,7 @@ func TestEmpty_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 				Places:      []cfg.StringID{"c"},
 				Transitions: nil,
 			},
-			expectedErr: NewError().Addf("transitions registry is empty"),
+			expectedErr: BuildErrorf("transitions registry is empty"),
 		},
 	}
 
@@ -74,7 +74,7 @@ func TestEmpty_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 
 	for desc, data := range dp {
 		t.Run(desc, func(t *testing.T) {
-			assert.Equal(t, data.expectedErr, v.Validate(data.cfg))
+			assert.Equal(t, data.expectedErr, v.Validate(data.cfg)) // nolint:scopelint
 		})
 	}
 }

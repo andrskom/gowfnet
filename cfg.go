@@ -28,7 +28,7 @@ type CfgValidateError struct {
 	errs []string
 }
 
-// NewCfgValidateError init error
+// NewCfgValidateError init error.
 func NewCfgValidateError() *CfgValidateError {
 	return &CfgValidateError{
 		errs: make([]string, 0),

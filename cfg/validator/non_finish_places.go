@@ -1,3 +1,4 @@
+// nolint:dupl
 package validator
 
 import (
@@ -30,6 +31,7 @@ func (n *NonFinishPlaces) Validate(c cfg.Interface) error {
 	}
 
 	vErr := NewError()
+
 	for _, node := range tree.GetNodeRegistry() {
 		switch node.GetColor() {
 		case ColorBlack:

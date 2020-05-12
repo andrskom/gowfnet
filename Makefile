@@ -1,5 +1,5 @@
 GO_IMG ?= golang:1.14
-GO_CILINT ?= golangci/golangci-lint:v1.24
+GO_CILINT ?= golangci/golangci-lint:v1.26
 SRV ?= gowfnet
 PROJECT_DIR ?= $(shell pwd)
 COVER_PROFILE ?=
@@ -12,7 +12,7 @@ all: lintC testC
 
 lint:
 	@echo "+ $@"
-	@golangci-lint run --enable-all --skip-dirs ./...
+	@golangci-lint run --enable-all --disable testpackage --disable goerr113 ./...
 .PHONY: lint
 
 lintC:
