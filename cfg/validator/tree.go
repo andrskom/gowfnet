@@ -85,7 +85,7 @@ func (n *TreeNode) SetColor(c color) error {
 	return nil
 }
 
-func (n *TreeNode) GetColor() color {
+func (n *TreeNode) GetColor() color { // nolint:golint
 	return n.color
 }
 

@@ -35,7 +35,7 @@ type Place struct {
 	isFinished    bool
 }
 
-// GetToTransitions return copy of toTransitions
+// GetToTransitions return copy of toTransitions.
 func (p *Place) GetToTransitions() []Transition {
 	res := make([]Transition, 0, len(p.toTransitions))
 	for _, transition := range p.toTransitions {

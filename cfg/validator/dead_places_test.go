@@ -1,3 +1,4 @@
+// nolint:funlen
 package validator
 
 import (
@@ -35,8 +36,8 @@ func TestDeadPlaces_Validate_BadTree_ExpectedErr(t *testing.T) {
 	var minCfg *cfg.Minimal
 
 	res := &Tree{
-		startNodeID:  "a",
-		registry:     nil,
+		startNodeID: "a",
+		registry:    nil,
 	}
 
 	builderMock.On("Build", minCfg).Return(res, nil)

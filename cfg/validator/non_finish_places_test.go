@@ -1,3 +1,4 @@
+// nolint:funlen
 package validator
 
 import (

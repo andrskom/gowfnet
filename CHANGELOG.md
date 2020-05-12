@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Non-finish places validator.
 - Duplicated places in places validator.
 - Duplicated places in transitions validator.
+- Error in state pkg with tests.
+- State in state pkg with tests. 
 ### Changed
 - Linter version to 1.24
 - GO version to 1.14
