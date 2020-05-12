@@ -12,7 +12,7 @@ all: lintC testC
 
 lint:
 	@echo "+ $@"
-	@golangci-lint run --enable-all --disable testpackage ./...
+	@golangci-lint run --enable-all --disable testpackage --disable goerr113 ./...
 .PHONY: lint
 
 lintC:

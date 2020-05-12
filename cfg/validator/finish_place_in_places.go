@@ -16,5 +16,8 @@ func (s *FinishPlaceInPlaces) Validate(c cfg.Interface) error {
 		}
 	}
 
-	return NewError().Addf("finish place is not found in places")
+	err := NewError()
+	err.Addf("finish place is not found in places")
+
+	return err
 }

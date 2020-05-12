@@ -23,6 +23,7 @@ func (a *AllTransitionPlacesInPlaces) Validate(c cfg.Interface) error {
 	}
 
 	err := NewError()
+
 	for k := range m {
 		err.Addf("place with id '%s' from transitions is not found in places", k)
 	}

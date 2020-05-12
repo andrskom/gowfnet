@@ -10,18 +10,24 @@ type Error struct {
 	list []string
 }
 
-// NewError init error
+// NewError init error.
 func NewError() *Error {
 	return &Error{
 		list: make([]string, 0),
 	}
 }
 
-// Addf message to err list.
-func (e *Error) Addf(format string, args ...interface{}) *Error {
-	e.list = append(e.list, fmt.Sprintf(format, args...))
+// BuildErrorf return new created err with added msg.
+func BuildErrorf(format string, args ...interface{}) *Error {
+	err := NewError()
+	err.Addf(format, args...)
 
-	return e
+	return err
+}
+
+// Addf message to err list.
+func (e *Error) Addf(format string, args ...interface{}) {
+	e.list = append(e.list, fmt.Sprintf(format, args...))
 }
 
 // Has errors.

@@ -45,7 +45,7 @@ func TestAllTransitionPlacesInPlaces_Validate_NotValidCfg_ExpectedErr(t *testing
 
 	assert.Equal(
 		t,
-		NewError().Addf("place with id 'a' from transitions is not found in places"),
+		BuildErrorf("place with id 'a' from transitions is not found in places"),
 		v.Validate(minCfg),
 	)
 }

@@ -16,5 +16,8 @@ func (n *NotNil) Validate(c cfg.Interface) error {
 		return nil
 	}
 
-	return NewError().Addf("config of net can't be nil")
+	err := NewError()
+	err.Addf("config of net can't be nil")
+
+	return err
 }

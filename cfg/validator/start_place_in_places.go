@@ -16,5 +16,8 @@ func (s *StartPlaceInPlaces) Validate(c cfg.Interface) error {
 		}
 	}
 
-	return NewError().Addf("start place is not found in places")
+	err := NewError()
+	err.Addf("start place is not found in places")
+
+	return err
 }

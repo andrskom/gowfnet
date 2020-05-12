@@ -74,3 +74,8 @@ func TestPrepareResultErr_HasErr_Err(t *testing.T) {
 	err.Addf("a")
 	assert.Equal(t, &Error{list: []string{"a"}}, PrepareResultErr(err))
 }
+
+func TestBuildErrorf(t *testing.T) {
+	err := BuildErrorf("%s", "a")
+	assert.Equal(t, " - a\n", err.Error())
+}

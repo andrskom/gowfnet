@@ -35,5 +35,5 @@ func TestStartPlaceInPlaces_Validate_NotValidCfg_ExpectedErr(t *testing.T) {
 
 	v := NewStartPlaceInPlaces()
 
-	assert.Equal(t, NewError().Addf("start place is not found in places"), v.Validate(minCfg))
+	assert.Equal(t, BuildErrorf("start place is not found in places"), v.Validate(minCfg))
 }

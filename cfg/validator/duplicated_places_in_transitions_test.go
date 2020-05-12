@@ -25,7 +25,7 @@ func TestDuplicatedPlacesInTransitions_Validate_DuplicatedInFrom_ExpectedErr(t *
 
 	assert.Equal(
 		t,
-		NewError().Addf("place with id 'b' is duplicated in transition with id 'a' in section from"),
+		BuildErrorf("place with id 'b' is duplicated in transition with id 'a' in section from"),
 		v.Validate(minCfg),
 	)
 }
@@ -43,7 +43,7 @@ func TestDuplicatedPlacesInTransitions_Validate_DuplicatedInTo_ExpectedErr(t *te
 
 	assert.Equal(
 		t,
-		NewError().Addf("place with id 'b' is duplicated in transition with id 'a' in section to"),
+		BuildErrorf("place with id 'b' is duplicated in transition with id 'a' in section to"),
 		v.Validate(minCfg),
 	)
 }
@@ -60,5 +60,5 @@ func TestDuplicatedPlacesInTransitions_Validate_CorrectCfg_NoErr(t *testing.T) {
 
 	v := NewDuplicatedPlacesInTransitions()
 
-	assert.NoError(t,v.Validate(minCfg))
+	assert.NoError(t, v.Validate(minCfg))
 }
