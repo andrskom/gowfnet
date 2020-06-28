@@ -1,11 +1,13 @@
 package cfg
 
-import "github.com/andrskom/gowfnet"
+import (
+	"github.com/andrskom/gowfnet/state"
+)
 
 const (
-	ErrCodeNilCfg               gowfnet.ErrCode = "gowfnet.cfg.nilConfig"
-	ErrCodeCfgAlreadyRegistered gowfnet.ErrCode = "gowfnet.cfg.alreadyRegistered"
-	ErrCodeCfgNotRegistered     gowfnet.ErrCode = "gowfnet.cfg.notRegistered"
+	ErrCodeNilCfg               state.ErrCode = "gowfnet.cfg.nilConfig"
+	ErrCodeCfgAlreadyRegistered state.ErrCode = "gowfnet.cfg.alreadyRegistered"
+	ErrCodeCfgNotRegistered     state.ErrCode = "gowfnet.cfg.notRegistered"
 )
 
 // Registry is a registry for config.
@@ -22,11 +24,11 @@ func NewRegistry() *Registry {
 // AddWithName returns err if one of params will be unexpected.
 func (r Registry) AddWithName(name string, cfg Interface) error {
 	if cfg == nil {
-		return gowfnet.NewError(ErrCodeNilCfg, "can't set nil config to registry")
+		return state.NewError(ErrCodeNilCfg, "can't set nil config to registry")
 	}
 
 	if _, ok := r.data[name]; ok {
-		return gowfnet.NewError(ErrCodeCfgAlreadyRegistered, "config with the same name is already registered")
+		return state.NewError(ErrCodeCfgAlreadyRegistered, "config with the same name is already registered")
 	}
 
 	r.data[name] = cfg
@@ -38,7 +40,7 @@ func (r Registry) AddWithName(name string, cfg Interface) error {
 func (r Registry) GetByName(name string) (Interface, error) {
 	out, ok := r.data[name]
 	if !ok {
-		return nil, gowfnet.NewError(ErrCodeCfgNotRegistered, "config with this name was not registered")
+		return nil, state.NewError(ErrCodeCfgNotRegistered, "config with this name was not registered")
 	}
 
 	return out, nil

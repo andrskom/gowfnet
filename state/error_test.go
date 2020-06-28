@@ -56,6 +56,18 @@ func TestError_Is(t *testing.T) {
 	})
 }
 
+func TestError_GetCode(t *testing.T) {
+	err := NewError(testingErrCode1, "a")
+
+	assert.Equal(t, testingErrCode1, err.GetCode())
+}
+
+func TestError_GetMessage(t *testing.T) {
+	err := NewError(testingErrCode1, "a")
+
+	assert.Equal(t, "a", err.GetMessage())
+}
+
 func TestError_Error(t *testing.T) {
 	require.Equal(
 		t,

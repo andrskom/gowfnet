@@ -19,6 +19,7 @@ lintC:
 	@echo "+ $@"
 	@docker run --rm -i  \
 		-v ${PROJECT_DIR}:/app/${SRV} \
+		-v ${GOPATH}:/go \
 		-w /app/${SRV} ${GO_CILINT} make lint
 .PHONY: lintC
 
@@ -31,7 +32,8 @@ testC:
 	@echo "+ $@"
 	@docker run --rm -i  \
 		-v ${PROJECT_DIR}:/app/${SRV} \
+		-v ${GOPATH}:/go \
 		-e COVER_PROFILE=${COVER_PROFILE} \
 		-w /app/${SRV} \
 		${GO_IMG} make test
-.PHONY: testС
+.PHONY: testC

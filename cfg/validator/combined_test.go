@@ -23,7 +23,7 @@ func (v *validatorMock) Validate(c cfg.Interface) error {
 func TestNew_NoValidators_EmptyList(t *testing.T) {
 	com := New()
 	assert.Equal(t,
-		&Component{validators: make([]Validator, 0)},
+		&Combined{validators: make([]Validator, 0)},
 		com,
 	)
 }
@@ -32,19 +32,19 @@ func TestNew_WithValidators_ExpectedComponent(t *testing.T) {
 	v := &validatorMock{err: errors.New("a")}
 	com := New(v)
 	assert.Equal(t,
-		&Component{validators: []Validator{v}},
+		&Combined{validators: []Validator{v}},
 		com,
 	)
 }
 
-func TestComponent_Validate_ErrNotHappened_NoErr(t *testing.T) {
+func TestCombined_Validate_ErrNotHappened_NoErr(t *testing.T) {
 	v := &validatorMock{}
 	com := New(v)
 	assert.NoError(t, com.Validate(&cfg.Minimal{}))
 	assert.Equal(t, 1, v.callsNum, "unexpected numbers of mock calls")
 }
 
-func TestComponent_Validate_ErrHappened_Err(t *testing.T) {
+func TestCombined_Validate_ErrHappened_Err(t *testing.T) {
 	v := &validatorMock{err: errors.New("a")}
 	com := New(v)
 	assert.Equal(t, errors.New("a"), com.Validate(&cfg.Minimal{}))

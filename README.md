@@ -1,5 +1,7 @@
 # gowfnet 
 
+![Test](https://github.com/andrskom/gowfnet/workflows/Test/badge.svg)
+
 Golang implementation of Workflow networks.
 
 ## Development

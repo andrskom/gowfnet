@@ -3,11 +3,11 @@ package cfg
 import (
 	"encoding/json"
 
-	"github.com/andrskom/gowfnet"
+	"github.com/andrskom/gowfnet/state"
 )
 
 const (
-	ErrCodeUnknownTransitionID gowfnet.ErrCode = "gowfnet.cfg.unknownTransition"
+	ErrCodeUnknownTransitionID state.ErrCode = "gowfnet.cfg.unknownTransition"
 )
 
 // StringID is simple implementation of IDGetter interface.
@@ -94,7 +94,7 @@ func (m MinimalTransitionRegistry) GetAsMap() map[string]TransitionInterface {
 
 func (m MinimalTransitionRegistry) GetByID(transitionID IDGetter) (TransitionInterface, error) {
 	if _, ok := m[transitionID.GetID()]; !ok {
-		return nil, gowfnet.NewError(ErrCodeUnknownTransitionID, "can't find transition for id in registry")
+		return nil, state.NewError(ErrCodeUnknownTransitionID, "can't find transition for id in registry")
 	}
 
 	return m[transitionID.GetID()], nil
