@@ -1,6 +1,7 @@
 # gowfnet 
 
 ![Test](https://github.com/andrskom/gowfnet/workflows/Test/badge.svg)
+![Lint](https://github.com/andrskom/gowfnet/workflows/Lint/badge.svg)
 
 Golang implementation of Workflow networks.
 

@@ -1,0 +1,9 @@
+on: [pull_request]
+name: Lint
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run golangci-lint
+        run: make lintC
