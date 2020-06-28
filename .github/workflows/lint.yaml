@@ -1,11 +1,9 @@
 on: [pull_request]
-name: Test
+name: Lint
 jobs:
   lint:
-    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Run golangci-lint
         uses: actions-contrib/golangci-lint@v1
-        run: make lint
