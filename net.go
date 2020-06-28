@@ -97,6 +97,7 @@ func (n *Net) Transit(ctx context.Context, s StateInterface, transitionID string
 	)
 }
 
+// nolint:unparam
 func (n *Net) process(ctx context.Context, s StateInterface, fromPlaces []string, toPlaces []string) error {
 	if err := s.MoveTokensFromPlacesToPlaces(fromPlaces, toPlaces); err != nil {
 		return err
