@@ -14,10 +14,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Duplicated places in places validator.
 - Duplicated places in transitions validator.
 - Error in state pkg with tests.
-- State in state pkg with tests. 
+- State in state pkg with tests.
+- New implementation of net and tests for it.
 ### Changed
 - Linter version to 1.24
 - GO version to 1.14
+### Removed
+- Old implementations.
 
 ## [0.4.0] -2020-03-04
 ### Fixed
