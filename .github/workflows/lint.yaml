@@ -6,6 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run golangci-lint
-        uses: actions-contrib/golangci-lint@v1
-        with:
-          golangci_lint_version: v1.26
+        run: make linC
