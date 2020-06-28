@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/andrskom/gowfnet"
+	"github.com/andrskom/gowfnet/state"
 )
 
 func TestCreateStringID(t *testing.T) {
@@ -68,7 +68,8 @@ func TestMinimalTransitionRegistry_GetByID_TransitionNotSet_ExpectedErr(t *testi
 	res, err := reg.GetByID(StringID("a"))
 
 	assert.Nil(t, res)
-	gowfnet.AssertErrCodeEqual(t, ErrCodeUnknownTransitionID, err)
+	assert.IsType(t, &state.Error{}, err)
+	assert.Equal(t, ErrCodeUnknownTransitionID, err.(*state.Error).GetCode())
 }
 
 func TestMinimalTransitionRegistry_GetByID_TransitionSet_ExpectedVal(t *testing.T) {
@@ -131,4 +132,14 @@ func TestMinimalTransitionRegistry_Marshalling(t *testing.T) {
 	err = json.Unmarshal(bytes, &res)
 	assert.NoError(t, err)
 	assert.Equal(t, reg, res)
+}
+
+func TestMinimalTransitionRegistry_UnmarshalJSON_UnexpectedBytes_ExpectedErr(t *testing.T) {
+	bytes := []byte(`[]`)
+
+	var res MinimalTransitionRegistry
+
+	err := json.Unmarshal(bytes, &res)
+	assert.Error(t, err)
+	assert.IsType(t, &json.UnmarshalTypeError{}, err)
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/andrskom/gowfnet"
+	"github.com/andrskom/gowfnet/state"
 )
 
 func TestNewRegistry(t *testing.T) {
@@ -16,7 +16,7 @@ func TestNewRegistry(t *testing.T) {
 func TestRegistry_AddWithName_NilConfig_ExpectedErrAndExpectedState(t *testing.T) {
 	reg := NewRegistry()
 	err := reg.AddWithName("a", nil)
-	assert.True(t, gowfnet.ErrorIs(ErrCodeNilCfg, err), "expected err with code "+ErrCodeNilCfg)
+	assert.True(t, state.ErrorIs(ErrCodeNilCfg, err), "expected err with code "+ErrCodeNilCfg)
 	assert.Equal(t, &Registry{data: make(map[string]Interface)}, reg)
 }
 
@@ -28,7 +28,7 @@ func TestRegistry_AddWithName_DoubleUseName_ExpectedErrAndExpectedState(t *testi
 	err = reg.AddWithName("a", &Minimal{Start: "c"})
 	assert.True(
 		t,
-		gowfnet.ErrorIs(ErrCodeCfgAlreadyRegistered, err),
+		state.ErrorIs(ErrCodeCfgAlreadyRegistered, err),
 		"expected err with code "+ErrCodeCfgAlreadyRegistered,
 	)
 	assert.Equal(t, &Registry{data: map[string]Interface{"a": &Minimal{Start: "b"}}}, reg)
@@ -60,7 +60,7 @@ func TestRegistry_GetByName_UnknownName_ExpectedErr(t *testing.T) {
 	assert.Nil(t, res)
 	assert.True(
 		t,
-		gowfnet.ErrorIs(ErrCodeCfgNotRegistered, err),
+		state.ErrorIs(ErrCodeCfgNotRegistered, err),
 		"expected err with code "+ErrCodeCfgNotRegistered,
 	)
 }

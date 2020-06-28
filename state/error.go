@@ -105,6 +105,16 @@ func NewErrorf(errorCode ErrCode, format string, args ...interface{}) *Error {
 }
 
 // ErrorIs check errStack.
+func (e *Error) GetCode() ErrCode {
+	return e.code
+}
+
+// ErrorIs check errStack.
+func (e *Error) GetMessage() string {
+	return e.message
+}
+
+// ErrorIs check errStack.
 func (e *Error) Is(errorCode ErrCode) bool {
 	return e.code == errorCode
 }
