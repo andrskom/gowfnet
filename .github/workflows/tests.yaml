@@ -16,3 +16,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Test
         run: make test
+      - name: Upload test cover
+          uses: actions/upload-artifact@v1
+          with:
+            name: cover
+            path: cover.html

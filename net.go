@@ -23,10 +23,6 @@ func GetSubject(ctx context.Context) (interface{}, bool) {
 	return data, true
 }
 
-type PlaceListenFunc func(ctx context.Context, config cfg.Interface, state StateReadInterface, placeID string)
-type TransitionListenFunc func(ctx context.Context, config cfg.Interface, state StateReadInterface, transitionID string)
-type EdgeListenFunc func(ctx context.Context, config cfg.Interface, state StateReadInterface)
-
 type StateReadInterface interface {
 	IsStarted() bool
 	IsFinished() bool
