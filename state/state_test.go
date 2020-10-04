@@ -1,6 +1,7 @@
 package state
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"testing"
@@ -20,7 +21,7 @@ func TestNewState(t *testing.T) {
 
 func TestState_GetPlaces(t *testing.T) {
 	state := NewState()
-	require.NoError(t, state.MoveTokensFromPlacesToPlaces([]string{}, []string{"a"}))
+	require.NoError(t, state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{"a"}))
 	assert.Equal(t, []string{"a"}, state.GetPlaces())
 }
 
@@ -90,7 +91,7 @@ func TestState_MoveTokensFromPlacesToPlaces_ErrState_ExpectedErr(t *testing.T) {
 	state := NewState()
 	state.AddError(errors.New("a"))
 
-	err := state.MoveTokensFromPlacesToPlaces([]string{}, []string{})
+	err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{})
 	assert.Equal(
 		t,
 		&Error{code: ErrCodeStateIsErrorState, message: "Can't process state to new places, state is errStack"},
@@ -102,7 +103,7 @@ func TestState_MoveTokensFromPlacesToPlaces_StateIsFinished_ExpectedErr(t *testi
 	state := NewState()
 	require.NoError(t, state.SetFinished())
 
-	err := state.MoveTokensFromPlacesToPlaces([]string{}, []string{})
+	err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{})
 	assert.Equal(
 		t,
 		&Error{code: ErrCodeStateIsFinished, message: "Can't process state to new places, state is finished"},
@@ -113,7 +114,7 @@ func TestState_MoveTokensFromPlacesToPlaces_StateIsFinished_ExpectedErr(t *testi
 func TestState_MoveTokensFromPlacesToPlaces_FromPLaceWithoutToken_ExpectedErr(t *testing.T) {
 	state := NewState()
 
-	err := state.MoveTokensFromPlacesToPlaces([]string{"a"}, []string{})
+	err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{"a"}, []string{})
 	assert.Equal(
 		t,
 		&Error{code: ErrCodeStateHasNotTokenInPlace, message: "State has not token in place 'a', state places: map[]"},
@@ -124,11 +125,11 @@ func TestState_MoveTokensFromPlacesToPlaces_FromPLaceWithoutToken_ExpectedErr(t 
 func TestState_MoveTokensFromPlacesToPlaces_ToPLaceAlreadyWithToken_ExpectedErr(t *testing.T) {
 	state := NewState()
 	{
-		err := state.MoveTokensFromPlacesToPlaces([]string{}, []string{"a", "b"})
+		err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{"a", "b"})
 		require.NoError(t, err)
 	}
 
-	err := state.MoveTokensFromPlacesToPlaces([]string{"a"}, []string{"b"})
+	err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{"a"}, []string{"b"})
 	assert.Equal(
 		t,
 		&Error{
@@ -142,11 +143,11 @@ func TestState_MoveTokensFromPlacesToPlaces_ToPLaceAlreadyWithToken_ExpectedErr(
 func TestState_MoveTokensFromPlacesToPlaces_CorrectStateForOperation_ExpectedState(t *testing.T) {
 	state := NewState()
 	{
-		err := state.MoveTokensFromPlacesToPlaces([]string{}, []string{"a", "b"})
+		err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{"a", "b"})
 		require.NoError(t, err)
 	}
 
-	err := state.MoveTokensFromPlacesToPlaces([]string{"a", "b"}, []string{"c", "d"})
+	err := state.MoveTokensFromPlacesToPlaces(context.Background(), []string{"a", "b"}, []string{"c", "d"})
 	assert.NoError(t, err)
 	assert.Len(t, state.GetPlaces(), 2)
 	assert.Contains(t, state.GetPlaces(), "c")
@@ -155,7 +156,7 @@ func TestState_MoveTokensFromPlacesToPlaces_CorrectStateForOperation_ExpectedSta
 
 func TestState_Serialization(t *testing.T) {
 	state := NewState()
-	require.NoError(t, state.MoveTokensFromPlacesToPlaces([]string{}, []string{"a"}))
+	require.NoError(t, state.MoveTokensFromPlacesToPlaces(context.Background(), []string{}, []string{"a"}))
 	state.AddError(errors.New("b"))
 	require.NoError(t, state.SetFinished())
 
@@ -180,4 +181,13 @@ func TestState_UnmarshalJSON_UnexpectedJSON_ExpectedErr(t *testing.T) {
 	var state State
 	err := json.Unmarshal([]byte("[]"), &state)
 	assert.IsType(t, &json.UnmarshalTypeError{}, err)
+}
+
+func TestState_WithListener(t *testing.T) {
+	st := NewState()
+
+	listener := NewStubListener()
+	st.WithListener(listener)
+
+	assert.Same(t, listener, st.listener)
 }

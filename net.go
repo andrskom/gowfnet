@@ -31,16 +31,32 @@ type StateReadInterface interface {
 	GetPlaces() []string
 }
 
-type StateInterface interface {
+type StateOpInterface interface {
 	StateReadInterface
-	MoveTokensFromPlacesToPlaces(from []string, to []string) error
 	SetFinished() error
+	AddError(err error)
+}
+
+type StateInterface interface {
+	StateOpInterface
+	WithListener(listener state.ListenerInterface)
+	MoveTokensFromPlacesToPlaces(ctx context.Context, from []string, to []string) error
+}
+
+type ListenerInterface interface {
+	BeforeStart(ctx context.Context) error
+	AfterStart(ctx context.Context)
+	BeforeTransition(ctx context.Context, transitionID string, state StateOpInterface) error
+	AfterTransition(ctx context.Context, transitionID string, state StateOpInterface)
+	HasStateListener() bool
+	GetStateListener() state.ListenerInterface
 }
 
 type Net struct {
 	cfg           cfg.Interface
 	placeMap      map[string]cfg.IDGetter
 	transitionMap map[string]cfg.TransitionInterface
+	listener      ListenerInterface
 }
 
 func NewNet(config cfg.Interface) *Net {
@@ -48,6 +64,7 @@ func NewNet(config cfg.Interface) *Net {
 		cfg:           config,
 		placeMap:      make(map[string]cfg.IDGetter),
 		transitionMap: config.GetTransitions().GetAsMap(),
+		listener:      NewStubListener(),
 	}
 
 	for _, place := range config.GetPlaces() {
@@ -57,6 +74,10 @@ func NewNet(config cfg.Interface) *Net {
 	return net
 }
 
+func (n *Net) WithListener(listener ListenerInterface) {
+	n.listener = listener
+}
+
 // Start workflow net.
 //
 // Use ctx for cancel operation and send subject of operation.
@@ -64,6 +85,12 @@ func (n *Net) Start(ctx context.Context, s StateInterface) error {
 	if s.IsStarted() {
 		return state.NewError(state.ErrCodeStateAlreadyStarted, "State already started in net")
 	}
+
+	if err := n.listener.BeforeStart(ctx); err != nil {
+		return err
+	}
+
+	defer n.listener.AfterStart(ctx)
 
 	return n.process(ctx, s, []string{}, buildStringSliceFromIDGetter(n.cfg.GetStart()))
 }
@@ -85,17 +112,32 @@ func (n *Net) Transit(ctx context.Context, s StateInterface, transitionID string
 		)
 	}
 
-	return n.process(
+	if err := n.listener.BeforeTransition(ctx, transitionID, s); err != nil {
+		return err
+	}
+
+	err := n.process(
 		ctx,
 		s,
 		buildStringSliceFromIDGetter(transition.GetFrom()...),
 		buildStringSliceFromIDGetter(transition.GetTo()...),
 	)
+
+	if err != nil {
+		return err
+	}
+
+	n.listener.AfterTransition(ctx, transitionID, s)
+
+	return nil
 }
 
-// nolint:unparam
 func (n *Net) process(ctx context.Context, s StateInterface, fromPlaces []string, toPlaces []string) error {
-	if err := s.MoveTokensFromPlacesToPlaces(fromPlaces, toPlaces); err != nil {
+	if n.listener.HasStateListener() {
+		s.WithListener(n.listener.GetStateListener())
+	}
+
+	if err := s.MoveTokensFromPlacesToPlaces(ctx, fromPlaces, toPlaces); err != nil {
 		return err
 	}
 
