@@ -16,9 +16,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Error in state pkg with tests.
 - State in state pkg with tests.
 - New implementation of net and tests for it.
+- Listeners for state and net.
+- Coverage for github action.
+- E2e test.
 ### Changed
 - Linter version to 1.24
 - GO version to 1.14
+- Use gomock instead 
 ### Removed
 - Old implementations.
 

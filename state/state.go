@@ -1,6 +1,7 @@
 package state
 
 import (
+	"context"
 	"encoding/json"
 	"sync"
 )
@@ -11,12 +12,20 @@ type ErrStackInterface interface {
 	GetErrs() []Error
 }
 
+type ListenerInterface interface {
+	OnFinish(st OpInterface)
+	OnError(st OpInterface)
+	BeforeMove(ctx context.Context, st OpInterface, from []string, to []string) error
+	AfterMove(ctx context.Context, st OpInterface, from []string, to []string)
+}
+
 // State of net.
 // If you need custom serialization you can use this struct embedded in your implementation.
 type State struct {
 	places     map[string]struct{}
 	errStack   *ErrStack
 	isFinished bool
+	listener   ListenerInterface
 	mu         sync.Mutex
 }
 
@@ -24,12 +33,18 @@ type State struct {
 func NewState() *State {
 	return &State{
 		places:     make(map[string]struct{}),
-		errStack:   NewErrStack(), // We can init inside value object without DI.
+		errStack:   NewErrStack(),     // We can init inside value object without DI.
+		listener:   NewStubListener(), // We can init inside value object without DI. And set it after if need.
 		isFinished: false,
 	}
 }
 
-// GetError returns errStack from state.
+// WithListener set listener to state.
+func (s *State) WithListener(listener ListenerInterface) {
+	s.listener = listener
+}
+
+// GetErrorStack returns errStack from state.
 func (s *State) GetErrorStack() ErrStackInterface {
 	return s.errStack
 }
@@ -56,6 +71,8 @@ func (s *State) AddError(err error) {
 	defer s.mu.Unlock()
 
 	s.errStack.Add(BuildError(err))
+
+	s.listener.OnError(s)
 }
 
 // IsFinished the net.
@@ -71,6 +88,8 @@ func (s *State) SetFinished() error {
 
 	s.isFinished = true
 
+	s.listener.OnFinish(s)
+
 	return nil
 }
 
@@ -80,7 +99,7 @@ func (s *State) IsStarted() bool {
 }
 
 // MoveTokensFromPlacesToPlaces for create new state.
-func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
+func (s *State) MoveTokensFromPlacesToPlaces(ctx context.Context, from []string, to []string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -112,6 +131,10 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 		}
 	}
 
+	if err := s.listener.BeforeMove(ctx, s, from, to); err != nil {
+		return err
+	}
+
 	for _, place := range from {
 		delete(s.places, place)
 	}
@@ -119,6 +142,8 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 	for _, place := range to {
 		s.places[place] = struct{}{}
 	}
+
+	s.listener.AfterMove(ctx, s, from, to)
 
 	return nil
 }
@@ -160,6 +185,10 @@ func (s *State) UnmarshalJSON(data []byte) error {
 
 	s.errStack = jsonSt.ErrStack
 	s.isFinished = jsonSt.IsFinished
+
+	if s.listener == nil {
+		s.listener = NewStubListener()
+	}
 
 	return nil
 }
