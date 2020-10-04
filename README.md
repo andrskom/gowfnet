@@ -3,7 +3,7 @@
 ![Test](https://github.com/andrskom/gowfnet/workflows/Test/badge.svg)
 ![Lint](https://github.com/andrskom/gowfnet/workflows/Lint/badge.svg)
 
-Golang implementation of Workflow networks.
+The Golang implementation of Workflow networks.
 
 ## Development
 
@@ -11,13 +11,11 @@ Use `make` for run lint and tests.
 
 ## Status
 
-*ALPHA*
+The only minimal implementation is finished.
 
-_Major version use as second number in semver._
+It's tested and works well. The Docs for this is in progress.
 
-_Wait for version 1.0.0 for stable using._
-
-## State
+You can see examples in e2e tests.
 
 ### Listener overwriting model
 
