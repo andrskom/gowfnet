@@ -132,7 +132,6 @@ func (n *Net) Transit(ctx context.Context, s StateInterface, transitionID string
 	return nil
 }
 
-// nolint:unparam
 func (n *Net) process(ctx context.Context, s StateInterface, fromPlaces []string, toPlaces []string) error {
 	if n.listener.HasStateListener() {
 		s.WithListener(n.listener.GetStateListener())
