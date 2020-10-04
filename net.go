@@ -1,124 +1,162 @@
 package gowfnet
 
-// Listener is an interface of set place listener.
-// If you want to ue many listeners, you should create own listener with list of listeners or use it as middlewares.
-// You can see example in AutomaticListenerMiddleware.
-type Listener interface {
-	AfterPlaced(net *Net, state *State, placeID string, subject interface{})
+import (
+	"context"
+
+	"github.com/andrskom/gowfnet/cfg"
+	"github.com/andrskom/gowfnet/state"
+)
+
+// nolint:gochecknoglobals
+var ctxSubject = &struct{}{}
+
+func SetSubject(ctx context.Context, subj interface{}) context.Context {
+	return context.WithValue(ctx, ctxSubject, subj)
 }
 
-// Net is built net.
+func GetSubject(ctx context.Context) (interface{}, bool) {
+	data := ctx.Value(ctxSubject)
+	if data == nil {
+		return nil, false
+	}
+
+	return data, true
+}
+
+type StateReadInterface interface {
+	IsStarted() bool
+	IsFinished() bool
+	IsError() bool
+	GetErrorStack() state.ErrStackInterface
+	GetPlaces() []string
+}
+
+type StateOpInterface interface {
+	StateReadInterface
+	SetFinished() error
+	AddError(err error)
+}
+
+type StateInterface interface {
+	StateOpInterface
+	WithListener(listener state.ListenerInterface)
+	MoveTokensFromPlacesToPlaces(ctx context.Context, from []string, to []string) error
+}
+
+type ListenerInterface interface {
+	BeforeStart(ctx context.Context) error
+	AfterStart(ctx context.Context)
+	BeforeTransition(ctx context.Context, transitionID string, state StateOpInterface) error
+	AfterTransition(ctx context.Context, transitionID string, state StateOpInterface)
+	HasStateListener() bool
+	GetStateListener() state.ListenerInterface
+}
+
 type Net struct {
-	startPlace  *Place
-	places      map[string]*Place
-	transitions map[string]*Transition
-	listener    Listener
+	cfg           cfg.Interface
+	placeMap      map[string]cfg.IDGetter
+	transitionMap map[string]cfg.TransitionInterface
+	listener      ListenerInterface
 }
 
-// BuildFromConfig new net.
-func BuildFromConfig(cfg Cfg) (*Net, error) {
-	if err := cfg.Validate(); err != nil {
-		return nil, err
+func NewNet(config cfg.Interface) *Net {
+	net := &Net{
+		cfg:           config,
+		placeMap:      make(map[string]cfg.IDGetter),
+		transitionMap: config.GetTransitions().GetAsMap(),
+		listener:      NewStubListener(),
 	}
 
-	placeRegistry := make(map[string]*Place)
-
-	for _, placeID := range cfg.Places {
-		placeRegistry[placeID] = newPlace(placeID, placeID == cfg.Finish)
+	for _, place := range config.GetPlaces() {
+		net.placeMap[place.GetID()] = place
 	}
 
-	wf := &Net{
-		startPlace:  placeRegistry[cfg.Start],
-		places:      placeRegistry,
-		transitions: make(map[string]*Transition),
-	}
-
-	for transitionID, transitionCfg := range cfg.Transitions {
-		transition := newTransition(transitionID, transitionCfg.IsAutomatic)
-		wf.transitions[transitionID] = transition
-
-		for _, placeID := range transitionCfg.From {
-			placeRegistry[placeID].addToTransitions(transition)
-			transition.addFromPlace(placeRegistry[placeID])
-		}
-
-		for _, placeID := range transitionCfg.To {
-			transition.addToPlace(placeRegistry[placeID])
-		}
-	}
-
-	return wf, nil
+	return net
 }
 
-// SetListener to net.
-func (n *Net) SetListener(listener Listener) {
+func (n *Net) WithListener(listener ListenerInterface) {
 	n.listener = listener
 }
 
-// Start net for the state.
-func (n *Net) Start(state *State, subject interface{}) error {
-	if state.IsStarted() {
-		return NewError(ErrCodeStateAlreadyStarted, "State already started in net")
+// Start workflow net.
+//
+// Use ctx for cancel operation and send subject of operation.
+func (n *Net) Start(ctx context.Context, s StateInterface) error {
+	if s.IsStarted() {
+		return state.NewError(state.ErrCodeStateAlreadyStarted, "State already started in net")
 	}
 
-	return n.process(state, subject, []string{}, []string{n.startPlace.id})
+	if err := n.listener.BeforeStart(ctx); err != nil {
+		return err
+	}
+
+	defer n.listener.AfterStart(ctx)
+
+	return n.process(ctx, s, []string{}, buildStringSliceFromIDGetter(n.cfg.GetStart()))
 }
 
-// Transit state to new place by transit.
-func (n *Net) Transit(state *State, transitionID string, subject interface{}) error {
-	if !state.IsStarted() {
-		return NewError(ErrCodeStateIsNotStarted, "Can't transit, state is not started")
+// Transit to new places(state).
+//
+// Use ctx for cancel operation and send subject of operation.
+func (n *Net) Transit(ctx context.Context, s StateInterface, transitionID string) error {
+	if !s.IsStarted() {
+		return state.NewError(state.ErrCodeStateIsNotStarted, "Can't transit, state is not started")
 	}
 
-	transition, ok := n.transitions[transitionID]
+	transition, ok := n.transitionMap[transitionID]
 	if !ok {
-		return NewErrorf(
-			ErrCodeNetDoesntKnowAboutTransition,
+		return state.NewErrorf(
+			state.ErrCodeNetDoesntKnowAboutTransition,
 			"Net doesn't know about transition '%s'",
 			transitionID,
 		)
 	}
 
-	return n.process(state, subject, transition.fromPlaceIDs, transition.toPlaceIDs)
-}
-
-func (n *Net) process(state *State, subject interface{}, fromPlaces []string, toPlaces []string) error {
-	if err := state.MoveTokensFromPlacesToPlaces(fromPlaces, toPlaces); err != nil {
+	if err := n.listener.BeforeTransition(ctx, transitionID, s); err != nil {
 		return err
 	}
 
-	if len(toPlaces) == 1 { // nolint:gomnd
-		place, err := n.GetPlace(toPlaces[0])
-		if err != nil {
-			return err
-		}
+	err := n.process(
+		ctx,
+		s,
+		buildStringSliceFromIDGetter(transition.GetFrom()...),
+		buildStringSliceFromIDGetter(transition.GetTo()...),
+	)
 
-		if place.isFinished {
-			state.isFinished = true
-		}
+	if err != nil {
+		return err
 	}
 
-	if n.listener != nil {
-		for _, place := range toPlaces {
-			n.listener.AfterPlaced(n, state, place, subject)
-		}
+	n.listener.AfterTransition(ctx, transitionID, s)
+
+	return nil
+}
+
+func (n *Net) process(ctx context.Context, s StateInterface, fromPlaces []string, toPlaces []string) error {
+	if n.listener.HasStateListener() {
+		s.WithListener(n.listener.GetStateListener())
+	}
+
+	if err := s.MoveTokensFromPlacesToPlaces(ctx, fromPlaces, toPlaces); err != nil {
+		return err
+	}
+
+	if len(toPlaces) != 1 {
+		return nil
+	}
+
+	if toPlaces[0] == n.cfg.GetFinish().GetID() {
+		return s.SetFinished()
 	}
 
 	return nil
 }
 
-// GetPlace return copy of place.
-func (n *Net) GetPlace(placeID string) (*Place, error) {
-	place, ok := n.places[placeID]
-	if !ok {
-		return nil, NewErrorf(
-			ErrCodeNetDoesntKnowAboutPlace,
-			"Net doesn't know about place '%s'",
-			placeID,
-		)
+func buildStringSliceFromIDGetter(in ...cfg.IDGetter) []string {
+	res := make([]string, 0, len(in))
+	for _, id := range in {
+		res = append(res, id.GetID())
 	}
 
-	copyPlace := *place
-
-	return &copyPlace, nil
+	return res
 }

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+##[1.0.0] - 2020-10-04
+### Added
+- Config pkg with a minimal config based on an interface.
+- Validator component amd error.
+- Validators for a base flow.
+- Dead places validator.
+- Non-finish places validator.
+- Duplicated places in places validator.
+- Duplicated places in transitions validator.
+- Error in state pkg with tests.
+- State in state pkg with tests.
+- New implementation of net and tests for it.
+- Listeners for state and net.
+- Coverage for github action.
+- E2e test.
+### Changed
+- Linter version to 1.24
+- GO version to 1.14
+- Use gomock instead 
+### Removed
+- Old implementations.
+
 ## [0.4.0] -2020-03-04
 ### Fixed
 - New linter errors.

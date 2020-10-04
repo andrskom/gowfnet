@@ -1,15 +1,31 @@
-package gowfnet
+package state
 
 import (
+	"context"
 	"encoding/json"
 	"sync"
 )
 
+type ErrStackInterface interface {
+	error
+	HasErrs() bool
+	GetErrs() []Error
+}
+
+type ListenerInterface interface {
+	OnFinish(st OpInterface)
+	OnError(st OpInterface)
+	BeforeMove(ctx context.Context, st OpInterface, from []string, to []string) error
+	AfterMove(ctx context.Context, st OpInterface, from []string, to []string)
+}
+
 // State of net.
+// If you need custom serialization you can use this struct embedded in your implementation.
 type State struct {
 	places     map[string]struct{}
 	errStack   *ErrStack
 	isFinished bool
+	listener   ListenerInterface
 	mu         sync.Mutex
 }
 
@@ -17,17 +33,23 @@ type State struct {
 func NewState() *State {
 	return &State{
 		places:     make(map[string]struct{}),
-		errStack:   NewErrStack(), // We can init inside value object without DI.
+		errStack:   NewErrStack(),     // We can init inside value object without DI.
+		listener:   NewStubListener(), // We can init inside value object without DI. And set it after if need.
 		isFinished: false,
 	}
 }
 
-// GetError return errStack from state.
-func (s *State) GetErrorStack() *ErrStack {
+// WithListener set listener to state.
+func (s *State) WithListener(listener ListenerInterface) {
+	s.listener = listener
+}
+
+// GetErrorStack returns errStack from state.
+func (s *State) GetErrorStack() ErrStackInterface {
 	return s.errStack
 }
 
-// GetPlaces return list of places.
+// GetPlaces returns places list copy.
 func (s *State) GetPlaces() []string {
 	res := make([]string, 0, len(s.places))
 	for place := range s.places {
@@ -42,43 +64,15 @@ func (s *State) IsError() bool {
 	return s.errStack.HasErrs()
 }
 
-// SetError state.
-// If try to set nil errStack, panic will happen.
-// If try to set errStack state while state is finished, panic will happen.
-// If try to set errStack state while state is not started, panic will happen.
-// If is already errStack state, not set new errStack state.
-func (s *State) SetError(err error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if err == nil {
-		panic("arguments of function can't be nil")
-	}
-
-	if !s.IsStarted() {
-		panic("state is not started")
-	}
-
-	if s.IsFinished() {
-		panic("state already is finished")
-	}
-
-	if !s.IsError() {
-		s.errStack.Add(BuildError(err))
-	}
-}
-
-// SetError state.
+// AddError state.
 // If try to set nil errStack, panic will happen.
 func (s *State) AddError(err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err == nil {
-		panic("arguments of function can't be nil")
-	}
-
 	s.errStack.Add(BuildError(err))
+
+	s.listener.OnError(s)
 }
 
 // IsFinished the net.
@@ -86,24 +80,26 @@ func (s *State) IsFinished() bool {
 	return s.isFinished
 }
 
+// IsFinished the net.
+func (s *State) SetFinished() error {
+	if s.IsFinished() {
+		return NewError(ErrCodeStateIsAlreadyFinished, "Can't set finished state, because state is already finished")
+	}
+
+	s.isFinished = true
+
+	s.listener.OnFinish(s)
+
+	return nil
+}
+
 // IsStarted the net.
 func (s *State) IsStarted() bool {
 	return len(s.places) > 0
 }
 
-// HasTokensInPlaces check token in places.
-func (s *State) HasTokensInPlaces(places []string) bool {
-	for _, place := range places {
-		if _, ok := s.places[place]; !ok {
-			return false
-		}
-	}
-
-	return true
-}
-
 // MoveTokensFromPlacesToPlaces for create new state.
-func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
+func (s *State) MoveTokensFromPlacesToPlaces(ctx context.Context, from []string, to []string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -125,10 +121,6 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 		}
 	}
 
-	for _, place := range from {
-		delete(s.places, place)
-	}
-
 	for _, place := range to {
 		if _, ok := s.places[place]; ok {
 			return NewErrorf(
@@ -139,9 +131,19 @@ func (s *State) MoveTokensFromPlacesToPlaces(from []string, to []string) error {
 		}
 	}
 
+	if err := s.listener.BeforeMove(ctx, s, from, to); err != nil {
+		return err
+	}
+
+	for _, place := range from {
+		delete(s.places, place)
+	}
+
 	for _, place := range to {
 		s.places[place] = struct{}{}
 	}
+
+	s.listener.AfterMove(ctx, s, from, to)
 
 	return nil
 }
@@ -152,8 +154,7 @@ type jsonState struct {
 	IsFinished bool      `json:"isFinished"`
 }
 
-// nolint:govet
-func (s State) MarshalJSON() ([]byte, error) {
+func (s *State) MarshalJSON() ([]byte, error) {
 	jsonPlaces := make([]string, 0, len(s.places))
 
 	for place := range s.places {
@@ -184,6 +185,10 @@ func (s *State) UnmarshalJSON(data []byte) error {
 
 	s.errStack = jsonSt.ErrStack
 	s.isFinished = jsonSt.IsFinished
+
+	if s.listener == nil {
+		s.listener = NewStubListener()
+	}
 
 	return nil
 }

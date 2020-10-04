@@ -1,4 +1,4 @@
-package gowfnet
+package state
 
 import (
 	"encoding/json"
@@ -7,17 +7,17 @@ import (
 
 type ErrCode string
 
-// nolint:gosec
 const (
-	ErrCodeStateHasNotTokenInPlace      = "gowfnet.stateHasNotTokenInPlace"
-	ErrCodeStateAlreadyHasTokenInPlace  = "gowfnet.stateAlreadyHasTokenInPlace"
+	ErrCodeUnknown                      = "gowfnet.unknown"
+	ErrCodeStateHasNotTokenInPlace      = "gowfnet.state.HasNotTokenInPlace"     // nolint:gosec
+	ErrCodeStateAlreadyHasTokenInPlace  = "gowfnet.state.AlreadyHasTokenInPlace" // nolint:gosec
+	ErrCodeStateAlreadyStarted          = "gowfnet.state.alreadyStarted"
+	ErrCodeStateIsNotStarted            = "gowfnet.state.isNotStarted"
+	ErrCodeStateIsFinished              = "gowfnet.state.isFinished"
+	ErrCodeStateIsAlreadyFinished       = "gowfnet.state.isAlreadyFinished"
+	ErrCodeStateIsErrorState            = "gowfnet.state.isErrorState"
 	ErrCodeNetDoesntKnowAboutTransition = "gowfnet.netDoesntKnowAboutTransition"
 	ErrCodeNetDoesntKnowAboutPlace      = "gowfnet.netDoesntKnowAboutPlace"
-	ErrCodeUnknown                      = "gowfnet.unknown"
-	ErrCodeStateAlreadyStarted          = "gowfnet.stateAlreadyStarted"
-	ErrCodeStateIsNotStarted            = "gowfnet.stateIsNotStarted"
-	ErrCodeStateIsFinished              = "gowfnet.stateIsFinished"
-	ErrCodeStateIsErrorState            = "gowfnet.stateIsErrorState"
 	ErrCodeRegistryNetAlreadyRegistered = "gowfnet.registryNetAlreadyRegistered"
 	ErrCodeRegistryNetNotRegistered     = "gowfnet.registryNetNotRegistered"
 )
@@ -33,7 +33,7 @@ func NewErrStack() *ErrStack {
 	return &ErrStack{stack: make([]Error, 0)}
 }
 
-// Addf err to stack.
+// Add err to stack.
 // If you send nil *Error, panic will happen.
 func (s *ErrStack) Add(err *Error) {
 	if err == nil {
@@ -49,6 +49,7 @@ func (s *ErrStack) HasErrs() bool {
 }
 
 // GetErrs fro stack.
+// Result isn't immutable.
 func (s *ErrStack) GetErrs() []Error {
 	return s.stack
 }
@@ -104,6 +105,16 @@ func NewErrorf(errorCode ErrCode, format string, args ...interface{}) *Error {
 }
 
 // ErrorIs check errStack.
+func (e *Error) GetCode() ErrCode {
+	return e.code
+}
+
+// ErrorIs check errStack.
+func (e *Error) GetMessage() string {
+	return e.message
+}
+
+// ErrorIs check errStack.
 func (e *Error) Is(errorCode ErrCode) bool {
 	return e.code == errorCode
 }
@@ -148,7 +159,6 @@ type jsonErr struct {
 	Message string  `json:"message"`
 }
 
-// nolint:govet
 func (e Error) MarshalJSON() ([]byte, error) {
 	jsonSt := jsonErr{
 		Code:    e.code,
