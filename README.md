@@ -1,4 +1,8 @@
-# gowfnet 
+# gowfnet
+
+**It was big mistake to put some logic into state.
+That's why this project will be archived.
+See a new implementation in gopetri.** 
 
 ![Test](https://github.com/andrskom/gowfnet/workflows/Test/badge.svg)
 ![Lint](https://github.com/andrskom/gowfnet/workflows/Lint/badge.svg)
