@@ -51,17 +51,17 @@ func (t *Tree) GetNodeRegistry() map[string]*TreeNode {
 	return t.registry
 }
 
-type color int
+type Color int
 
 const (
-	ColorWhite color = iota
+	ColorWhite Color = iota
 	ColorGray
 	ColorBlack
 )
 
 type TreeNode struct {
 	id    string
-	color color
+	color Color
 	to    map[string]*TreeNode
 	from  map[string]*TreeNode
 }
@@ -75,7 +75,11 @@ func NewTreeNode(id string) *TreeNode {
 	}
 }
 
-func (n *TreeNode) SetColor(c color) error {
+func (n *TreeNode) SetColor(c Color) error {
+	switch c {
+
+	}
+
 	if n.color != c-1 {
 		return ErrUnexpectedColorOfNode
 	}
@@ -85,11 +89,11 @@ func (n *TreeNode) SetColor(c color) error {
 	return nil
 }
 
-func (n *TreeNode) GetColor() color { // nolint:golint
+func (n *TreeNode) GetColor() Color {
 	return n.color
 }
 
-func (n *TreeNode) IsColor(c color) bool {
+func (n *TreeNode) IsColor(c Color) bool {
 	return n.color == c
 }
 
@@ -121,7 +125,7 @@ type TreeBuilder interface {
 	Build(c cfg.Interface) (*Tree, error)
 }
 
-// BuildTree from config of net and return tree.
+// CfgTreeBuilder from config of net and return tree.
 type CfgTreeBuilder struct {
 }
 
