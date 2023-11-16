@@ -23,7 +23,7 @@ func (s StringID) GetID() string {
 	return string(s)
 }
 
-// Minimal is a implementation of Interface.
+// Minimal is an implementation of Interface.
 // This contains only required fields.
 // The easiest ways of setting config are via const or via json.
 type Minimal struct {
